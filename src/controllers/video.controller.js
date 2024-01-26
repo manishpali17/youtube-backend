@@ -1,6 +1,7 @@
 import mongoose, { isValidObjectId } from "mongoose";
 import { User } from "../models/user.model.js";
 import { Video } from "../models/video.model.js";
+import jwt from "jsonwebtoken";
 import {
   ApiError,
   ApiRes,

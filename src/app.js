@@ -1,8 +1,16 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yaml";
 
 export const app = express();
+
+const signedCookiesSecret =
+  process.env.COOKIEPARSER_SECRET || "I am Manish Pali";
 
 app.use(
   cors({
@@ -10,11 +18,10 @@ app.use(
     credentials: true,
   })
 );
-
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
-app.use(cookieParser("I am Manish Pali"));
+app.use(cookieParser(signedCookiesSecret));
 
 //middleware route
 import { errorHandler } from "./middlewares/error.middlewares.js";
@@ -50,6 +57,22 @@ app.use("/api/v1/comments", commentRouter);
 app.use("/api/v1/likes", likeRouter);
 app.use("/api/v1/playlist", playlistRouter);
 app.use("/api/v1/dashboard", dashboardRouter);
+
+// fetching YML file for Swagger-ui
+let swaggerDocument;
+try {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const file = fs.readFileSync(
+    path.resolve(__dirname, "./swagger.yml"),
+    "utf8"
+  );
+  swaggerDocument = YAML.parse(file);
+} catch (error) {
+  console.log(error);
+}
+// api-documention
+app.use("/api/v1/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //404 error
 app.use((req, res) => {

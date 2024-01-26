@@ -15,7 +15,7 @@ import {
   getRandomNumber,
 } from "../utils/index.js";
 
-const USERS_COUNT = 20;
+const USERS_COUNT = 10;
 const VIDEO_COUNT = USERS_COUNT * 3;
 const COMMENT_COUNT = USERS_COUNT * 3;
 const TWEET_COUNT = USERS_COUNT * 3;

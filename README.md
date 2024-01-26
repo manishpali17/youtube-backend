@@ -17,10 +17,10 @@ This is a mini ``YOUTUBE-BACKEND`` project that covers the major functionalities
 
 ## Important links
 
-| Content                   | Link                                                                        |
-| --------------------------| ----------------------------------------------------------------------------|
-|  API Documentation        | [click here](https://documenter.getpostman.com/view/31072720/2s9YsT793M)    |
-|  Model                    | [click here ](https://app.eraser.io/workspace/YtPqZ1VogxGy1jzIDkzj)         |
+| Content                          | Link                                                                     |
+| -------------------------------- | ------------------------------------------------------------------------ |
+| Postman collection Documentation | [click here](https://documenter.getpostman.com/view/32550852/2s9Yyqhh3W) |
+| Model                            | [click here ](https://app.eraser.io/workspace/YtPqZ1VogxGy1jzIDkzj)      |
 
 ## Features
 
@@ -72,6 +72,15 @@ This is a mini ``YOUTUBE-BACKEND`` project that covers the major functionalities
 ### Health Check:
 
 - Endpoint to verify the backend's health
+
+### Api Docs:
+
+- Api documention using swagger-ui-express
+
+### Seed-fake-data
+
+- seed fake data into database using faker package
+
 
 ## Technologies Used
 

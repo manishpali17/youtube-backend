@@ -8,3 +8,4 @@ build
 package.json
 package-lock.json
 README.md
+swagger.yml

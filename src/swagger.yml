@@ -1,0 +1,5072 @@
+openapi: 3.0.0
+info:
+  title: youtube-clone
+  description: >-
+    _This comprehensive_ _**backend**_ _application replicates the core
+    functionality of YouTube, providing a robust foundation for video platform.
+    Find more about his project in the documentaion below._
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+tags:
+  - name: "default"
+  - name: "User Management:"
+    description: >-
+      \- Registration, login, logout, change-current-password,
+      delete-user-account
+
+
+      \- Profile management (avatar, cover image, details)
+
+
+      \- Session Management using JWT (JSON Web Tokens) and signedCookies:
+
+
+      \- Managing Watch historyEndFragment
+  - name: "Video Management:"
+    description: |-
+      \- Video upload and publishing
+
+      \- Video search, sorting, and pagination
+
+      \- Video editing and deletion
+
+      \- Visibility control (publish/unpublish)EndFragment
+  - name: "Comment Management:"
+    description: \- Adding, updating, and deleting comments on videosEndFragment
+  - name: "Tweet Management:"
+    description: |-
+      \- Tweet creation and publishing
+
+      \- Viewing user tweets
+
+      \- Updating and deleting tweetsEndFragment
+  - name: "Subscription Management:"
+    description: |-
+      \- Subscribing to channels
+
+      \- Viewing subscriber and subscribed channel listsEndFragment
+  - name: "Like Management:"
+    description: |-
+      \- Liking and unliking videos, comments, and tweets
+
+      \- Viewing liked videosEndFragment
+  - name: "Dashboard:"
+    description: |-
+      \- Viewing channel statistics (views, subscribers, videos, likes)
+
+      \- Accessing all uploaded videos by userEndFragment
+  - name: "Playlist Management:"
+    description: |-
+      \- Creating, updating, and deleting playlists
+
+      \- Adding and removing videos from playlists
+
+      \- Viewing user playlistsEndFragment
+paths:
+  /api/v1/users/refresh-token:
+    get:
+      tags:
+        - "User Management:"
+      summary: refresh-access-token
+      description: >
+
+        This endpoint makes an HTTP GET request to refresh the user's access
+        token. It returns a JSON object with a status code, data containing the
+        new access and refresh tokens, a message, and a success indicator.
+
+
+        The response will have the following structure:
+
+        - statusCode (number): The status code of the response.
+
+        - data (object): An object containing the new access and refresh tokens.
+          - accessToken (string): The new access token.
+          - refreshToken (string): The new refresh token.
+        - message (string): A message from the server.
+
+        - success (boolean): Indicates whether the request was successful.
+
+
+        Example response:
+
+        ```json
+
+        {
+          "statusCode": 0,
+          "data": {
+            "accessToken": "",
+            "refreshToken": ""
+          },
+          "message": "",
+          "success": true
+        }
+
+        ```
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Set-Cookie:
+              schema:
+                type: string
+                example: >-
+                  refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWFjNzM4OTMzMmU3MmI1MTY3ZWM5ZjYiLCJpYXQiOjE3MDU4MDMyNDUsImV4cCI6MTcwNjY2NzI0NX0.3H7QhEJq12Y3EOH50_E6k0s3_K2ikZRw438m84zPe54;
+                  Path=/; HttpOnly; Secure
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "541"
+            ETag:
+              schema:
+                type: string
+                example: W/"21d-Ol/7lBpGgDPre9nGli3KWQ2h0Jo"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:14:05 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  accessToken: >-
+                    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWFjNzM4OTMzMmU3MmI1MTY3ZWM5ZjYiLCJlbWFpbCI6InRocmVlQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoidGhyZWUiLCJmdWxsTmFtZSI6InRocmVlIiwiaWF0IjoxNzA1ODAzMjQ1LCJleHAiOjE3MDU4ODk2NDV9.0nkcSpPznq7sQHP9TjFzXoGzvUHAoyS3uba7hSibK2g
+                  refreshToken: >-
+                    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWFjNzM4OTMzMmU3MmI1MTY3ZWM5ZjYiLCJpYXQiOjE3MDU4MDMyNDUsImV4cCI6MTcwNjY2NzI0NX0.3H7QhEJq12Y3EOH50_E6k0s3_K2ikZRw438m84zPe54
+                message: Access token refreshed
+                success: true
+  /api/v1/users/getuser:
+    get:
+      tags:
+        - "User Management:"
+      summary: get-current-user
+      description: >-
+        This endpoint makes an HTTP GET request to retrieve user information
+        from the server. The request does not include a request body. require
+        cookies
+
+
+        ### Response
+
+
+        - Status: 200
+
+        - Body:
+            
+            ``` json
+              {
+                "statusCode": 0,
+                "data": {
+                  "user": {
+                    "_id": "",
+                    "username": "",
+                    "email": "",
+                    "fullName": "",
+                    "avatar": "",
+                    "coverImage": "",
+                    "watchHistory": [],
+                    "createdAt": "",
+                    "updatedAt": "",
+                    "__v": 0
+                  }
+                },
+                "message": "",
+                "success": true
+              }
+            
+             ```
+            
+
+        ```
+
+        The response contains the user data with fields like user ID, username,
+        email, full name, avatar, cover image, watch history, creation and
+        update timestamps, and a version field. The statusCode indicates the
+        status of the response, and success is a boolean flag indicating the
+        success of the operation.
+
+         ```
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "488"
+            ETag:
+              schema:
+                type: string
+                example: W/"1e8-nnaqM03TWQDrJsuNgYyUQtpq9KY"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:14:24 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 201
+                data:
+                  user:
+                    _id: 65ac7389332e72b5167ec9f6
+                    username: three
+                    email: three@gmail.com
+                    fullName: three
+                    avatar: >-
+                      http://res.cloudinary.com/doh56heah/image/upload/v1705800584/wwuobz864rtifzlxgbbr.png
+                    coverImage: >-
+                      http://res.cloudinary.com/doh56heah/image/upload/v1705800585/gmecfv28eojudrgpjbrp.png
+                    watchHistory: []
+                    createdAt: "2024-01-21T01:29:45.909Z"
+                    updatedAt: "2024-01-21T02:14:05.882Z"
+                    __v: 0
+                message: user fetched successfully
+                success: true
+  /api/v1/users/history:
+    get:
+      tags:
+        - "User Management:"
+      summary: watch-history
+      description: |-
+        # Get User History
+
+        This endpoint is used to retrieve the history of user watch history.
+
+        ## Request
+
+        - Method: `GET`
+        - URL: `http://localhost:3000/api/v1/users/history`
+            
+
+        ## Response
+
+        - Status: 200
+        - Body:
+            
+            ``` json
+              {
+                  "statusCode": 0,
+                  "data": [],
+                  "message": "",
+                  "success": true
+              }
+            
+             ```
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "786"
+            ETag:
+              schema:
+                type: string
+                example: W/"312-PRcAG52oZLZGr/8z3iz8agJ5koU"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:15:09 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  - _id: 65aa787a44c87f79d736e337
+                    videoFile:
+                      fileName: uzlrulk6zawwp91202mo
+                      url: >-
+                        http://res.cloudinary.com/doh56heah/video/upload/v1705670775/uzlrulk6zawwp91202mo.mp4
+                    thumbnail:
+                      fileName: scijtt8ynh4thgmyeiqe
+                      url: >-
+                        http://res.cloudinary.com/doh56heah/image/upload/v1705800905/scijtt8ynh4thgmyeiqe.png
+                    owner:
+                      _id: 65a6c8736f385e1a26256ab9
+                      username: one
+                      fullName: One One
+                      avatar: >-
+                        http://res.cloudinary.com/doh56heah/image/upload/v1705800455/vk4o7hcy4jjlists70hh.png
+                    title: updated video
+                    description: viedo update succssfully
+                    duration: 14.2142
+                    isPublished: true
+                    createdAt: "2024-01-19T13:26:18.198Z"
+                    updatedAt: "2024-01-21T02:14:58.839Z"
+                    __v: 0
+                    views: 18
+                message: Watch history fetched successfully
+                success: true
+  /api/v1/users/c/{username}:
+    get:
+      tags:
+        - "User Management:"
+      summary: channel-profile
+      description: >+
+
+        This endpoint makes an HTTP GET request to retrieve user information
+        based on the provided username. The request should be made to
+        http://localhost:3000/api/v1/users/c/:username.
+
+
+        The response to the last execution of this request returned a status
+        code of 200, along with a JSON object containing user data. The "data"
+        object includes fields such as _id, username, email, fullName, avatar,
+        coverImage, subscribersCount, channelsSubscribedToCount, and
+        isSubscribed.
+
+
+        The "success" field indicates whether the request was successful, and
+        the "message" field may contain additional information about the
+        request.
+
+
+        No request body is required for this endpoint.
+
+
+      parameters:
+        - name: username
+          in: path
+          schema:
+            type: string
+          required: true
+          example: one
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "452"
+            ETag:
+              schema:
+                type: string
+                example: W/"1c4-2fm/3ShSsbei55aYUYexNfIF32Y"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:15:50 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  _id: 65a6c8736f385e1a26256ab9
+                  username: one
+                  email: ONE@gmail.com
+                  fullName: One One
+                  avatar: >-
+                    http://res.cloudinary.com/doh56heah/image/upload/v1705800455/vk4o7hcy4jjlists70hh.png
+                  coverImage: >-
+                    http://res.cloudinary.com/doh56heah/image/upload/v1705799605/v0nqjjvhaqaoltpxbqsi.png
+                  subscribersCount: 2
+                  channelsSubscribedToCount: 0
+                  isSubscribed: true
+                message: User channel fetched successfully
+                success: true
+  /api/v1/users/register:
+    post:
+      tags:
+        - "User Management:"
+      summary: register
+      description: |+
+
+        # Register User
+
+        This endpoint allows you to register a new user.
+
+        ## Request
+        - Method: POST
+        - URL: `http://localhost:3000/api/v1/users/register`
+        - Body (form-data):
+          - `fullName` (text, required): The full name of the user.
+          - `email` (text, required): The email address of the user.
+          - `password` (text, required): The password for the user account.
+          - `username` (text, required): The desired username for the user.
+          - `avatar` (file, optional): The avatar image for the user.
+          - `coverImage` (file, optional): The cover image for the user profile.
+
+        ## Response
+        - Status: 201
+        - Body:
+          ```json
+          {
+              "statusCode": 0,
+              "data": {
+                  "_id": "",
+                  "username": "",
+                  "email": "",
+                  "fullName": "",
+                  "avatar": "",
+                  "coverImage": "",
+                  "watchHistory": [],
+                  "createdAt": "",
+                  "updatedAt": "",
+                  "__v": 0
+              },
+              "message": "",
+              "success": true
+          }
+          ```
+
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                fullName:
+                  type: string
+                  example: fourth
+                email:
+                  type: string
+                  example: fourth@gmail.com
+                password:
+                  type: string
+                  example: fourth@123
+                username:
+                  type: string
+                  example: fourth
+                avatar:
+                  type: string
+                  format: binary
+                coverImage:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Created
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "485"
+            ETag:
+              schema:
+                type: string
+                example: W/"1e5-xlLjfKN4aY96Y40srhDEyzjRbG8"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:18:08 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  _id: 65ac7ee08f8ed6566d87691e
+                  username: fourth
+                  email: fourth@gmail.com
+                  fullName: fourth
+                  avatar: >-
+                    http://res.cloudinary.com/doh56heah/image/upload/v1705803486/fshz2f9f7e9fvqcgpcl3.png
+                  coverImage: >-
+                    http://res.cloudinary.com/doh56heah/image/upload/v1705803488/z82nimebds33n2syi1de.png
+                  watchHistory: []
+                  createdAt: "2024-01-21T02:18:08.828Z"
+                  updatedAt: "2024-01-21T02:18:08.828Z"
+                  __v: 0
+                message: User registered Successfully
+                success: true
+  /api/v1/users/login:
+    post:
+      tags:
+        - "User Management:"
+      summary: login
+      description: |-
+        ### POST /users/login
+
+        This endpoint is used to log in a user.
+
+        #### Request Body
+
+        - x-www-form-urlencoded
+            - `username` (text, required): The username of the user.
+            - `password` (text, required): The password of the user.
+
+        #### Response
+
+        - Status: 200
+        - Body:
+            
+            ``` json
+              {
+                  "statusCode": 0,
+                  "data": {
+                      "user": {
+                          "_id": "",
+                          "username": "",
+                          "email": "",
+                          "fullName": "",
+                          "avatar": "",
+                          "coverImage": "",
+                          "watchHistory": [],
+                          "createdAt": "",
+                          "updatedAt": "",
+                          "__v": 0
+                      },
+                      "accessToken": "",
+                      "refreshToken": ""
+                  },
+                  "message": "",
+                  "success": true
+              }
+            
+             ```
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: tomasa.wolff
+                password:
+                  type: string
+                  example: WP3fCakprFrALy3
+      responses:
+        "200":
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Wed, 24 Jan 2024 18:01:17 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "977"
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Cache-Control:
+              schema:
+                type: string
+                example: no-cache,no-store
+            ETag:
+              schema:
+                type: string
+                example: W/"3d1-dltnq6lp/2tke9UElH+TFlKRHwY"
+            Expires:
+              schema:
+                type: string
+                example: Thu, 01 Jan 1970 00:00:00 GMT
+            Pragma:
+              schema:
+                type: string
+                example: no-cache
+            Set-Cookie:
+              schema:
+                type: string
+                example: >-
+                  .Tunnels.Relay.WebForwarding.Cookies=CfDJ8Pjr1fvz4XtAuncu_xvzDVJszlvV8gHVlpP3dn2y_vxJnuBwVEN4DTm4ibZoDUjiGDkdVwwM255R9OJmevRWwK30r40d7cZBMa93_LKqHwaBJMTr7dm4QBKB3sNRUHgQkZeyCMyiVvUoFe-E9VMJ5U_lTCQlIb3yNFCD1BoW7AWbhafLQfOrW0wHalK1vn8cKZl9WxN3XU5JdhkmOLfnzBRbki2pnyauJ1L_-BTc_vvGYiQs-Q3FVoaXRpi_zmSnOJDnHgeMFINIUl5lDxb2cdU4GqOEjeopwJDsIDtP4xd7dFhdKa4zFUdAdtWijGShq4zKpeQVKhHfx0xd6Z7oPv-IsikjFmQGlUs51MdUdfAc9OEDX3BrGNCul_om_ulA8GF8NVwqlcy1LQXqrYIZL9pKAkqwdwrhSYlH2bBcGxHeeU-Rz92MEL2SfXOESBYFgpuGQBRZ4faqxckDjzSS8lEVUjN4qnEI6imVXEIe5l6CdI5zuy6ZtKsvdE1B14Y-dkBLut9opP_IQVrUlDOVQPi8iF1BzyrmG-tcXRKv_hc7lDAo55nf5p1aL0nxmLdWnCeAVY7zOXQH_OWwuIm3wLwRSXu98wohpNgUmYd-Jf4BHQ0ORB2F6pIOKb0HkwjBR3Ch7BZxEvx0RxI7pp-TztM5hcsuYP5XTwkvBQxU3dhnIcTbAGy7S8CsO91ghhDooZaaspvmZOY0U6KztPpJsKsrGNeuPYR1idyZTYz8RBWWSm8EHmpxvEMLBdsIuZqMcPwdJ8dNlK1j9qUFvRXgbia4O4X1gM9uhq74rJlwXvZnCb_6ehkVykzglcj0hIfJwalOvuD_IfmTD0dg9MK0PCqrjlrTNXZ-QN-iS9Q8LUKTY3mc8eH8HqGJmCBQuQ-6nNjLs7dSxN676lIT9zUIkFs;
+                  path=/; secure; samesite=none
+            X-Content-Type-Options:
+              schema:
+                type: string
+                example: nosniff
+            RateLimit-Limit:
+              schema:
+                type: string
+                example: HttpRequestRatePerPort:1500/m
+            RateLimit-Remaining:
+              schema:
+                type: string
+                example: HttpRequestRatePerPort:1499
+            RateLimit-Reset:
+              schema:
+                type: string
+                example: HttpRequestRatePerPort:23s
+            mise-correlation-id:
+              schema:
+                type: string
+                example: 74eb6f3c-7af6-439b-8bad-1f794565c041
+            X-Report-Abuse:
+              schema:
+                type: string
+                example: https://msrc.microsoft.com/report/abuse
+            x-ms-ratelimit-limit:
+              schema:
+                type: integer
+                example: "1500"
+            x-ms-ratelimit-remaining:
+              schema:
+                type: integer
+                example: "1498"
+            x-ms-ratelimit-used:
+              schema:
+                type: integer
+                example: "2"
+            x-ms-ratelimit-reset:
+              schema:
+                type: integer
+                example: "0"
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            X-Robots-Tag:
+              schema:
+                type: string
+                example: noindex, nofollow
+            Referrer-Policy:
+              schema:
+                type: string
+                example: same-origin
+            VsSaaS-Request-Id:
+              schema:
+                type: string
+                example: 8f22f098-e77e-42bf-941e-bfde88150756
+            Strict-Transport-Security:
+              schema:
+                type: string
+                example: max-age=31536000; includeSubDomains
+            X-Served-By:
+              schema:
+                type: string
+                example: tunnels-prod-rel-inc1-v3-cluster
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  user:
+                    _id: 65b148250a752ec3152c6fe6
+                    username: fourth
+                    email: fourth@gmail.com
+                    fullName: fourth
+                    avatar: >-
+                      http://res.cloudinary.com/doh56heah/image/upload/v1706117154/YouTube/Screenshot_26_gqf0ow.png
+                    coverImage: >-
+                      http://res.cloudinary.com/doh56heah/image/upload/v1706117156/YouTube/Screenshot_25_oo7xdu.png
+                    watchHistory: []
+                    createdAt: "2024-01-24T17:25:57.240Z"
+                    updatedAt: "2024-01-24T18:01:17.082Z"
+                    __v: 0
+                  accessToken: >-
+                    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWIxNDgyNTBhNzUyZWMzMTUyYzZmZTYiLCJlbWFpbCI6ImZvdXJ0aEBnbWFpbC5jb20iLCJ1c2VybmFtZSI6ImZvdXJ0aCIsImZ1bGxOYW1lIjoiZm91cnRoIiwiaWF0IjoxNzA2MTE5Mjc3LCJleHAiOjE3MDYyMDU2Nzd9.NTfRrm5dncaAKLHFsrHTlVq_VwYONwsa813PpNDhuYs
+                  refreshToken: >-
+                    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWIxNDgyNTBhNzUyZWMzMTUyYzZmZTYiLCJpYXQiOjE3MDYxMTkyNzcsImV4cCI6MTcwNjk4MzI3N30.cyxR4egoS3KLEe07Qx35ZKuuYJ8K0XxqgfNIF-D9mZw
+                message: User logged in successfully
+                success: true
+  /api/v1/users/logout:
+    post:
+      tags:
+        - "User Management:"
+      summary: logout
+      description: >
+
+        This endpoint is used to log out a user. Upon successful execution, it
+        returns a status code of 200 along with an empty data object and a
+        success message. The request payload does not require any specific
+        parameters.
+      requestBody:
+        content: {}
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Wed, 24 Jan 2024 18:03:06 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "71"
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Cache-Control:
+              schema:
+                type: string
+                example: no-cache,no-store
+            ETag:
+              schema:
+                type: string
+                example: W/"47-As20QlSbGGTq515zdhzWHPjwWhg"
+            Expires:
+              schema:
+                type: string
+                example: Thu, 01 Jan 1970 00:00:00 GMT
+            Pragma:
+              schema:
+                type: string
+                example: no-cache
+            Set-Cookie:
+              schema:
+                type: string
+                example: >-
+                  .Tunnels.Relay.WebForwarding.Cookies=CfDJ8Pjr1fvz4XtAuncu_xvzDVJj2JVX2_TpwxEGmkxYV5MbcFVmVeCsgwalIP-kuzLg6t-VlU1444IvINPffqBLn-Y1e8va61qdUGx_Ymlk2IdBrUMOe19m_qmN13ZCHHNg9v0S_7yS_4SbqO0yHPf66fBlXJJghWBPIitQwb79fQOEjLpnNun4LVNWU5GtxWO7ltHz5Pey6Rj2Npylcrrm60se8IXHB38pVgZYny0TDnLY4ayTsawL0KOdVm7W6vbObqqHm8QYhEt_W_LrJWgpGWqvc_i5P9GBqHzJy7y-2BwZ4Mh4FwB9TDqikaY9GMuZJBcVqyWALVKEDSMTLHDjzJlv5zisLoCFPL2EziSyiDICKr4Tusn0jMRberoeUdmPiOcEc3QdPU9T5w75ZPB5piwDOX3S6QZHqt2-nD7Vcy593gxDlkHhmVVsRP_SMNZmjyiZBIvSSUTaNQXZnyGv-VCKLArtLBIbEaHK0PlnfMI62UX8BllDgyvWcKOxQTFeaSev2ERrEPWtw6F2tZqN1LbXohxp5kmXreAH9M-HKOqTE9tglxZYxbyV8znoVYxIPauFuYgn9ItFmjeR8aqfkw_0KrjUtz9bO178TkOnzpvEQu6Hnfn_KFJJEBTqM4qR5xZp3SsWbaedWML33paJ2Gt5JBVVsZhLV-DpCI1ZzEynfjDWHGhTy9KZ6gOMY1u-5K-DK6-rphu3Eyrxrp_exucd9d3pnl-gBZ4ylDnfQwl_9UO8RIzXPvrp-g0RvAlMUnatB3XrdWhAMtdXjD8yhwsQ-AyAT2DY3IsByVbXWP2mDLC7Q5t8AOEAK7RW29mscQ1HMcRe5ExSPBABa0ga0XNEfdoKBcjwlmvIDwJg9EGAlSAF5f5RgRoBbwijQqRu7SjKv3lk1GEgSpYlfdEUo7Q;
+                  path=/; secure; samesite=none
+            X-Content-Type-Options:
+              schema:
+                type: string
+                example: nosniff
+            RateLimit-Limit:
+              schema:
+                type: string
+                example: HttpRequestRatePerPort:1500/m
+            RateLimit-Remaining:
+              schema:
+                type: string
+                example: HttpRequestRatePerPort:1499
+            RateLimit-Reset:
+              schema:
+                type: string
+                example: HttpRequestRatePerPort:24s
+            mise-correlation-id:
+              schema:
+                type: string
+                example: 21d2e47c-3d30-40e4-bc4a-3878a2724697
+            X-Report-Abuse:
+              schema:
+                type: string
+                example: https://msrc.microsoft.com/report/abuse
+            x-ms-ratelimit-limit:
+              schema:
+                type: integer
+                example: "1500"
+            x-ms-ratelimit-remaining:
+              schema:
+                type: integer
+                example: "1498"
+            x-ms-ratelimit-used:
+              schema:
+                type: integer
+                example: "2"
+            x-ms-ratelimit-reset:
+              schema:
+                type: integer
+                example: "0"
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            X-Robots-Tag:
+              schema:
+                type: string
+                example: noindex, nofollow
+            Referrer-Policy:
+              schema:
+                type: string
+                example: same-origin
+            VsSaaS-Request-Id:
+              schema:
+                type: string
+                example: 278ae562-a039-42c8-9f38-75a009cf1e49
+            Strict-Transport-Security:
+              schema:
+                type: string
+                example: max-age=31536000; includeSubDomains
+            X-Served-By:
+              schema:
+                type: string
+                example: tunnels-prod-rel-inc1-v3-cluster
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data: {}
+                message: User logged out
+                success: true
+  /api/v1/users/change-password:
+    post:
+      tags:
+        - "User Management:"
+      summary: change-current-password
+      description: >2+
+
+            
+        ### Change User Password
+
+
+        This endpoint is used to change the password for a user.
+
+
+        **HTTP Request**
+
+        ```http
+
+        POST http://localhost:3000/api/v1/users/change-password
+
+        ```
+
+
+        **Request Body**
+
+        - `newPassword` (text): The new password for the user.
+
+        - `oldPassword` (text): The old password for the user.
+
+
+        **Response**
+
+        - Status: 200
+
+        - `statusCode` (number): Indicates the status of the operation.
+
+        - `message` (string): Additional information about the operation.
+
+        - `success` (boolean): Indicates whether the password change was
+        successful.
+
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                newPassword:
+                  type: string
+                  example: One@123
+                oldPassword:
+                  type: string
+                  example: One@123
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "53"
+            ETag:
+              schema:
+                type: string
+                example: W/"35-wPuSgTrpnyJqbo8ZseoEYVKu8xs"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:19:56 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                message: Success
+                success: true
+  /api/v1/users/update-user-details:
+    patch:
+      tags:
+        - "User Management:"
+      summary: update-user-details
+      description: >
+
+        # Update User Details
+
+
+        This endpoint is used to update the details of a user.
+
+
+        ## Request
+
+
+        Send a PATCH request to
+        `http://localhost:3000/api/v1/users/update-user-details` with the
+        following parameters in the x-www-form-urlencoded request body:
+
+
+        - `email` (text): The updated email of the user.
+
+        - `fullName` (text): The updated full name of the user.
+
+
+        ## Response
+
+
+        Upon successful execution, the endpoint will return a status code of 200
+        and a JSON response with the following structure:
+
+
+        - `statusCode` (number): The status code of the response.
+
+        - `data` (object): An object containing the updated user details,
+        including `_id`, `username`, `email`, `fullName`, `avatar`,
+        `coverImage`, `watchHistory`, `createdAt`, `updatedAt`, and `__v`.
+
+        - `message` (string): A message related to the response.
+
+        - `success` (boolean): Indicates the success status of the request.
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: ONE@gmail.com
+                fullName:
+                  type: string
+                  example: One One
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "513"
+            ETag:
+              schema:
+                type: string
+                example: W/"201-4wUaKPf35uvaC7oPi4ju5LoUrGk"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:20:17 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  _id: 65a6c8736f385e1a26256ab9
+                  username: one
+                  email: ONE@gmail.com
+                  fullName: One One
+                  avatar: >-
+                    http://res.cloudinary.com/doh56heah/image/upload/v1705800455/vk4o7hcy4jjlists70hh.png
+                  coverImage: >-
+                    http://res.cloudinary.com/doh56heah/image/upload/v1705799605/v0nqjjvhaqaoltpxbqsi.png
+                  watchHistory:
+                    - 65aa787a44c87f79d736e337
+                  createdAt: "2024-01-16T18:18:27.730Z"
+                  updatedAt: "2024-01-21T02:20:17.099Z"
+                  __v: 0
+                message: account details update successfully
+                success: true
+  /api/v1/users/update-avatar:
+    patch:
+      tags:
+        - "User Management:"
+      summary: update-avatar
+      description: >
+
+        This endpoint is used to update the avatar of a user. The request should
+        be sent as an HTTP PATCH to
+        http://localhost:3000/api/v1/users/update-avatar with the avatar file
+        included in the form-data request body.
+
+
+        ### Request Body
+
+        - avatar (file): The avatar file to be updated.
+
+
+        ### Response
+
+        - Status: 200
+
+        - statusCode (number): Indicates the status of the response.
+
+        - data (object): Contains the updated user information, with the avatar
+        field updated.
+
+        - message (string): A message related to the response.
+
+        - success (boolean): Indicates if the request was successful.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "769"
+            ETag:
+              schema:
+                type: string
+                example: W/"301-YJS1p7bLeJ/mIuL0cZP8jNL30DY"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:21:05 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  _id: 65a6c8736f385e1a26256ab9
+                  username: one
+                  email: ONE@gmail.com
+                  fullName: One One
+                  avatar: >-
+                    http://res.cloudinary.com/doh56heah/image/upload/v1705803664/pwkjhxbabprbxeof9c5e.png
+                  coverImage: >-
+                    http://res.cloudinary.com/doh56heah/image/upload/v1705799605/v0nqjjvhaqaoltpxbqsi.png
+                  watchHistory:
+                    - 65aa787a44c87f79d736e337
+                  password: $2b$10$PFGiCvZu/SbAI.aoLUtDXefiEnPYSM0.f8KWhWymOaS5UFsyUI1Xm
+                  createdAt: "2024-01-16T18:18:27.730Z"
+                  updatedAt: "2024-01-21T02:21:04.580Z"
+                  __v: 0
+                  refreshToken: >-
+                    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWE2Yzg3MzZmMzg1ZTFhMjYyNTZhYjkiLCJpYXQiOjE3MDU4MDM1OTEsImV4cCI6MTcwNjY2NzU5MX0.pzD0cBZ9LGyLJjmbh9OLzys9c0X4T6J0U_VCLtOCWWY
+                message: avatar updated successfully
+                success: true
+  /api/v1/users/update-cover-image:
+    patch:
+      tags:
+        - "User Management:"
+      summary: update-cover
+      description: >-
+        This endpoint is used to update the cover image for a user. The request
+        should be sent as an HTTP PATCH to
+        http://localhost:3000/api/v1/users/update-cover-image with a form-data
+        body containing the key "coverImage" of type "file".
+
+
+        The response to the last execution of this request had a status code of
+        200 and included a JSON object with the following structure:
+
+
+        ``` json
+
+        {
+            "statusCode": 0,
+            "data": {
+                "_id": "",
+                "username": "",
+                "email": "",
+                "fullName": "",
+                "avatar": "",
+                "coverImage": "",
+                "watchHistory": [],
+                "createdAt": "",
+                "updatedAt": "",
+                "__v": 0,
+                "refreshToken": ""
+            },
+            "message": "",
+            "success": true
+        }
+
+         ```
+
+        The "data" object contains the updated user information, including the
+        new cover image. The "success" field indicates whether the operation was
+        successful.
+
+
+        Add documentation.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                coverImage:
+                  type: string
+                  format: binary
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "700"
+            ETag:
+              schema:
+                type: string
+                example: W/"2bc-FtK9aS7aYmd14Xsrp2HfC/Y2EWE"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:21:33 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  _id: 65a6c8736f385e1a26256ab9
+                  username: one
+                  email: ONE@gmail.com
+                  fullName: One One
+                  avatar: >-
+                    http://res.cloudinary.com/doh56heah/image/upload/v1705803664/pwkjhxbabprbxeof9c5e.png
+                  coverImage: >-
+                    http://res.cloudinary.com/doh56heah/image/upload/v1705803693/rvzzueylen9xlbcnuv5g.png
+                  watchHistory:
+                    - 65aa787a44c87f79d736e337
+                  createdAt: "2024-01-16T18:18:27.730Z"
+                  updatedAt: "2024-01-21T02:21:33.314Z"
+                  __v: 0
+                  refreshToken: >-
+                    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWE2Yzg3MzZmMzg1ZTFhMjYyNTZhYjkiLCJpYXQiOjE3MDU4MDM1OTEsImV4cCI6MTcwNjY2NzU5MX0.pzD0cBZ9LGyLJjmbh9OLzys9c0X4T6J0U_VCLtOCWWY
+                message: Cover image updated successfully
+                success: true
+  /api/v1/users/history/remove-video/{videoId}:
+    patch:
+      tags:
+        - "User Management:"
+      summary: remove-video-from-watch-history
+      description: |-
+        # Get User History
+
+        This endpoint is used to retrieve the history of user watch history.
+
+        ## Request
+
+        - Method: `GET`
+        - URL: `http://localhost:3000/api/v1/users/history`
+            
+
+        ## Response
+
+        - Status: 200
+        - Body:
+            
+            ``` json
+                {
+                    "statusCode": 0,
+                    "data": [],
+                    "message": "",
+                    "success": true
+                }
+            
+             ```
+      requestBody:
+        content: {}
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: videoId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65aa787a44c87f79d736e337
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "786"
+            ETag:
+              schema:
+                type: string
+                example: W/"312-PRcAG52oZLZGr/8z3iz8agJ5koU"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:15:09 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  - _id: 65aa787a44c87f79d736e337
+                    videoFile:
+                      fileName: uzlrulk6zawwp91202mo
+                      url: >-
+                        http://res.cloudinary.com/doh56heah/video/upload/v1705670775/uzlrulk6zawwp91202mo.mp4
+                    thumbnail:
+                      fileName: scijtt8ynh4thgmyeiqe
+                      url: >-
+                        http://res.cloudinary.com/doh56heah/image/upload/v1705800905/scijtt8ynh4thgmyeiqe.png
+                    owner:
+                      _id: 65a6c8736f385e1a26256ab9
+                      username: one
+                      fullName: One One
+                      avatar: >-
+                        http://res.cloudinary.com/doh56heah/image/upload/v1705800455/vk4o7hcy4jjlists70hh.png
+                    title: updated video
+                    description: viedo update succssfully
+                    duration: 14.2142
+                    isPublished: true
+                    createdAt: "2024-01-19T13:26:18.198Z"
+                    updatedAt: "2024-01-21T02:14:58.839Z"
+                    __v: 0
+                    views: 18
+                message: Watch history fetched successfully
+                success: true
+  /api/v1/users/delete-user:
+    delete:
+      tags:
+        - "User Management:"
+      summary: delete-user-account
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/videos:
+    get:
+      tags:
+        - "Video Management:"
+      summary: get-all-videos
+      description: >-
+        This endpoint makes an HTTP GET request to retrieve a list of videos
+        based on the provided query parameters. The request includes the user
+        ID, search query, sorting criteria, page number, and limit.
+
+
+        The response returns a status code of 200 along with a JSON object. The
+        "statusCode" indicates the status of the response, and the "data" field
+        contains an array of video documents, along with pagination information.
+        Each video document includes details such as ID, file information,
+        thumbnail, owner details, title, description, duration, publication
+        status, creation and update timestamps, and view count.
+
+
+        The user can "Add documentation" to further explain the usage and
+        expected behavior of this endpoint.
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: string
+          description: user id show publish and unpublish videos
+          example: 65a6c8736f385e1a26256ab9
+        - name: query
+          in: query
+          schema:
+            type: string
+          description: search on title and description of a video
+          example: h
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+          description: you can sort by["createdAt", "duration", "views"]
+          example: createdAt
+        - name: sortType
+          in: query
+          schema:
+            type: string
+          description: sortType ["acs","dcs"]
+          example: dsc
+        - name: page
+          in: query
+          schema:
+            type: integer
+          example: "1"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          example: "3"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "2308"
+            ETag:
+              schema:
+                type: string
+                example: W/"904-fLLW5NCN2RV1T21Xn4G1uU9kQW0"
+            Date:
+              schema:
+                type: string
+                example: Fri, 26 Jan 2024 19:34:40 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  Videos:
+                    - _id: 65b34b9dfb84d51b89c6bad1
+                      videoFile:
+                        fileName: conturbo
+                        url: >-
+                          https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/531.jpg
+                      thumbnail:
+                        fileName: succurro
+                        url: https://avatars.githubusercontent.com/u/28072803
+                      owner:
+                        _id: 65b34b9b2afcdbc23764beee
+                        username: sage89
+                        fullName: Carolyn Hermann MD
+                        avatar: https://avatars.githubusercontent.com/u/35978120
+                      title: usque
+                      description: >-
+                        Terebro hic ventosus quasi cavus asporto contra tumultus
+                        pectus.
+                      duration: 18
+                      views: 0
+                      isPublished: true
+                      __v: 0
+                      createdAt: "2024-01-26T06:05:17.915Z"
+                      updatedAt: "2024-01-26T06:05:17.915Z"
+                    - _id: 65b34b9dfb84d51b89c6bad2
+                      videoFile:
+                        fileName: carmen
+                        url: https://avatars.githubusercontent.com/u/29178703
+                      thumbnail:
+                        fileName: viduo
+                        url: >-
+                          https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/949.jpg
+                      owner:
+                        _id: 65b34b9b2afcdbc23764bee5
+                        username: mohamed.orn
+                        fullName: Roderick Corwin-Bernier
+                        avatar: >-
+                          https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/673.jpg
+                      title: peccatus
+                      description: >-
+                        Consectetur cervus laborum adficio depulso comptus
+                        coadunatio temptatio canis.
+
+                        Nihil studio deprecator totam quibusdam dapifer utor.
+                      duration: 23
+                      views: 0
+                      isPublished: true
+                      __v: 0
+                      createdAt: "2024-01-26T06:05:17.915Z"
+                      updatedAt: "2024-01-26T06:05:17.915Z"
+                    - _id: 65b34b9dfb84d51b89c6bad5
+                      videoFile:
+                        fileName: admoneo
+                        url: https://avatars.githubusercontent.com/u/98576875
+                      thumbnail:
+                        fileName: sequi
+                        url: https://avatars.githubusercontent.com/u/24386728
+                      owner:
+                        _id: 65b34b9b2afcdbc23764bee9
+                        username: marcellus56
+                        fullName: Dr. Armando Hilll
+                        avatar: >-
+                          https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/602.jpg
+                      title: advenio
+                      description: >-
+                        Qui adsuesco uterque aliquam reprehenderit autus
+                        patrocinor benigne voveo.
+                      duration: 1
+                      views: 0
+                      isPublished: true
+                      __v: 0
+                      createdAt: "2024-01-26T06:05:17.915Z"
+                      updatedAt: "2024-01-26T06:05:17.915Z"
+                  totalVideos: 19
+                  limit: 3
+                  page: 1
+                  totalPages: 7
+                  pagingCounter: 1
+                  hasPrevPage: false
+                  hasNextPage: true
+                  prevPage: null
+                  nextPage: 2
+                message: Videos fetched successfully
+                success: true
+    post:
+      tags:
+        - "Video Management:"
+      summary: add-video
+      description: >
+
+        This endpoint allows you to upload a video with its associated details.
+        When making an HTTP POST request to http://localhost:3000/api/v1/videos,
+        use the form-data request body type with the following parameters:
+
+
+        - `title`: (text) The title of the video.
+
+        - `description`: (text) A description of the video.
+
+        - `thumbnail`: (file) The thumbnail image for the video.
+
+        - `videoFile`: (file) The video file to be uploaded.
+
+
+        The response to this request will have a status code of 200 and include
+        the following data:
+
+
+        - `statusCode`: A numeric status code.
+
+        - `data`: An object containing details about the uploaded video,
+        including the file names and URLs for the video file and thumbnail, the
+        owner, title, description, duration, publication status, and other
+        metadata.
+
+        - `message`: A message related to the request.
+
+        - `success`: Indicates if the request was successful.
+
+
+        Ensure that the required parameters are included in the request body,
+        and handle the response data accordingly.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: third video
+                description:
+                  type: string
+                  example: third description
+                thumbnail:
+                  type: string
+                  format: binary
+                videoFile:
+                  type: string
+                  format: binary
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "616"
+            ETag:
+              schema:
+                type: string
+                example: W/"268-CxK2MA+uM31keFXbvN/A2NOBlnE"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 03:30:54 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 201
+                data:
+                  videoFile:
+                    fileName: dqfqza0teexywxc5fu5h
+                    url: >-
+                      http://res.cloudinary.com/doh56heah/video/upload/v1705807850/dqfqza0teexywxc5fu5h.mp4
+                  thumbnail:
+                    fileName: zlpelomq9cditubzzkag
+                    url: >-
+                      http://res.cloudinary.com/doh56heah/image/upload/v1705807854/zlpelomq9cditubzzkag.png
+                  owner: 65aae442f2153225b823cb3a
+                  title: fourth video
+                  description: fourth description
+                  duration: 14.2142
+                  isPublished: true
+                  _id: 65ac8fee0c314ecb6e7d508f
+                  createdAt: "2024-01-21T03:30:54.278Z"
+                  updatedAt: "2024-01-21T03:30:54.278Z"
+                  __v: 0
+                message: video uploaded successfully
+                success: true
+  /api/v1/videos/{videoId}:
+    get:
+      tags:
+        - "Video Management:"
+      summary: get-video-by-id
+      description: >+
+
+        # Get Video Details
+
+
+        This endpoint retrieves details of a specific video based on the
+        provided `videoId`.
+
+
+        ## Request
+
+
+        ### Request URL
+
+        - Method: GET
+
+        - URL: `http://localhost:3000/api/v1/videos/:videoId`
+
+
+        ### Request Body
+
+        - Type: undefined
+
+        - Payload: null
+
+
+        ## Response
+
+
+        - Status: 200
+
+
+        ### Response Body
+
+        - `statusCode` (number): Status code of the response.
+
+        - `data` (array): Array containing video details.
+          - `_id` (string): Unique identifier of the video.
+          - `videoFile` (object): Details of the video file.
+            - `fileName` (string): Name of the video file.
+            - `url` (string): URL of the video file.
+          - `thumbnail` (object): Details of the video thumbnail.
+            - `fileName` (string): Name of the thumbnail file.
+            - `url` (string): URL of the thumbnail file.
+          - `owner` (object): Details of the video owner.
+            - `_id` (string): Unique identifier of the owner.
+            - `username` (string): Username of the owner.
+            - `fullName` (string): Full name of the owner.
+            - `avatar` (string): URL of the owner's avatar.
+          - `title` (string): Title of the video.
+          - `description` (string): Description of the video.
+          - `duration` (number): Duration of the video.
+          - `isPublished` (boolean): Indicates if the video is published.
+          - `createdAt` (string): Timestamp of video creation.
+          - `updatedAt` (string): Timestamp of last update.
+          - `__v` (number): Version of the video.
+          - `views` (number): Number of views on the video.
+          - `likes` (array): Array of liked user details.
+            - `_id` (string): Unique identifier of the liked user.
+          - `likesOnVideo` (number): Number of likes on the video.
+        - `message` (string): Additional message from the server.
+
+        - `success` (boolean): Indicates if the request was successful.
+
+      parameters:
+        - name: videoId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65b34b9dfb84d51b89c6bab0
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "830"
+            ETag:
+              schema:
+                type: string
+                example: W/"33e-MMyOPXIzzzkbWeVBhoI7PwL4axo"
+            Date:
+              schema:
+                type: string
+                example: Fri, 26 Jan 2024 19:38:48 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  _id: 65b34b9dfb84d51b89c6bab0
+                  videoFile:
+                    fileName: spoliatio
+                    url: >-
+                      https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/1139.jpg
+                  thumbnail:
+                    fileName: urbanus
+                    url: >-
+                      https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/276.jpg
+                  owner:
+                    _id: 65b34b9b2afcdbc23764bedf
+                    username: tomasa.wolff
+                    fullName: Dr. Leroy Marks
+                    avatar: https://avatars.githubusercontent.com/u/15435448
+                  title: repellat
+                  description: |-
+                    Caveo deinde conculco autus dolorem vado bos.
+                    Tui harum talio sub denuncio verumtamen terminatio.
+                  duration: 8
+                  views: 1
+                  isPublished: true
+                  __v: 0
+                  createdAt: "2024-01-26T06:05:17.913Z"
+                  updatedAt: "2024-01-26T19:38:48.322Z"
+                  likesOnVideo: 5
+                message: Video fetched successfully
+                success: true
+    patch:
+      tags:
+        - "Video Management:"
+      summary: update-video
+      description: >-
+        ### Update Video Details
+
+
+        This endpoint is used to update the details of a specific video.
+
+
+        #### Request
+
+
+        The request should be sent as an HTTP PATCH to
+        `http://localhost:3000/api/v1/videos/:videoId`.
+
+
+        ##### Request Body
+
+
+        The request body should be of type form-data and include the following
+        parameters:
+
+
+        - `title`: (text) - The updated title of the video.
+
+        - `description`: (text) - The updated description of the video.
+
+        - `thumbnail`: (file) - The updated thumbnail image for the video.
+            
+
+        #### Response
+
+
+        Upon a successful update, the endpoint returns a status code of 200 and
+        the following response:
+
+
+        ``` json
+
+        {
+            "statusCode": 0,
+            "data": {
+                "videoFile": {
+                    "fileName": "",
+                    "url": ""
+                },
+                "thumbnail": {
+                    "fileName": "",
+                    "url": ""
+                },
+                "_id": "",
+                "owner": "",
+                "title": "",
+                "description": "",
+                "duration": 0,
+                "isPublished": true,
+                "createdAt": "",
+                "updatedAt": "",
+                "__v": 0,
+                "views": 0
+            },
+            "message": "",
+            "success": true
+        }
+
+         ```
+
+        #### Note
+
+
+        - The `data` object in the response contains the updated details of the
+        video, including the video file, thumbnail, title, description,
+        duration, and other relevant information.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: updated video
+                description:
+                  type: string
+                  example: viedo update succssfully
+                thumbnail:
+                  type: string
+                  description: optional
+                  format: binary
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: videoId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65aa787a44c87f79d736e337
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "649"
+            ETag:
+              schema:
+                type: string
+                example: W/"289-IE3EW6EtFAtlL/SOqaxzdtimMWc"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:22:33 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  videoFile:
+                    fileName: uzlrulk6zawwp91202mo
+                    url: >-
+                      http://res.cloudinary.com/doh56heah/video/upload/v1705670775/uzlrulk6zawwp91202mo.mp4
+                  thumbnail:
+                    fileName: scijtt8ynh4thgmyeiqe
+                    url: >-
+                      http://res.cloudinary.com/doh56heah/image/upload/v1705800905/scijtt8ynh4thgmyeiqe.png
+                  _id: 65aa787a44c87f79d736e337
+                  owner: 65a6c8736f385e1a26256ab9
+                  title: updated video
+                  description: viedo update succssfully
+                  duration: 14.2142
+                  isPublished: true
+                  createdAt: "2024-01-19T13:26:18.198Z"
+                  updatedAt: "2024-01-21T02:22:33.361Z"
+                  __v: 0
+                  views: 18
+                message: title and description updated successfully
+                success: true
+    delete:
+      tags:
+        - "Video Management:"
+      summary: delete-video
+      description: >
+
+        This endpoint is used to delete a specific video by providing the video
+        ID in the URL parameters. The request does not require a request body.
+        Upon successful deletion, the endpoint returns a status code of 200
+        along with an empty JSON response object containing the statusCode,
+        data, message, and success properties.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: videoId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65aa74ae8842bd4d2ce61a82
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "82"
+            ETag:
+              schema:
+                type: string
+                example: W/"52-aIqT41zk93vuX7K7v7eBiK2PSt8"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:26:12 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data: {}
+                message: Video deleted successfully
+                success: true
+  /api/v1/videos/toggle/publish/{videoId}:
+    patch:
+      tags:
+        - "Video Management:"
+      summary: toggle-video
+      description: >
+
+        This HTTP PATCH request is used to toggle the publish status of a
+        specific video identified by the videoId in the URL.
+
+
+        The request body is empty.
+
+
+        ### Response
+
+        - Status: 200
+
+        - Body:
+          ```json
+          {
+              "statusCode": 0,
+              "data": {},
+              "message": "",
+              "success": true
+          }
+          ```
+          The response includes a status code, an empty data object, a message, and a success indicator.
+      requestBody:
+        content: {}
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: videoId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65aa787a44c87f79d736e337
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "86"
+            ETag:
+              schema:
+                type: string
+                example: W/"56-E/d9alsXLAZSuSv5V4EoVMoCVbg"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:23:08 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: toggle-video
+                  value:
+                    statusCode: 200
+                    data: {}
+                    message: Video successfully Unpublished
+                    success: true
+                example-1:
+                  summary: toggle-video
+                  value:
+                    statusCode: 200
+                    data: {}
+                    message: Video successfully Published
+                    success: true
+  /api/v1/comments/{videoId}:
+    get:
+      tags:
+        - "Comment Management:"
+      summary: get-all-the-comments-on-video
+      description: >
+
+        This API endpoint makes an HTTP GET request to retrieve comments
+        associated with a specific video, identified by the videoId parameter in
+        the URL. The request uses x-www-form-urlencoded request body type with a
+        payload containing the content type.
+
+
+        ### Request
+
+        - Method: GET
+
+        - URL: http://localhost:3000/api/v1//comments/:videoId
+
+        - Body (x-www-form-urlencoded):
+          - content (text): The type of content
+
+        ### Response
+
+        - Status: 200
+
+        - Body:
+          ```json
+          {
+            "statusCode": 0,
+            "data": {
+              "docs": [
+                {
+                  "_id": "",
+                  "content": "",
+                  "video": "",
+                  "createdAt": "",
+                  "updatedAt": "",
+                  "__v": 0,
+                  "likesOnComment": 0,
+                  "ownerOfComment": {
+                    "_id": "",
+                    "username": "",
+                    "fullName": "",
+                    "avatar": ""
+                  },
+                  "isLiked": true
+                }
+              ],
+              "totalDocs": 0,
+              "limit": 0,
+              "page": 0,
+              "totalPages": 0,
+              "pagingCounter": 0,
+              "hasPrevPage": true,
+              "hasNextPage": true,
+              "prevPage": null,
+              "nextPage": null
+            },
+            "message": "",
+            "success": true
+          }
+          ```
+
+        This endpoint retrieves comments for a specific video and returns a list
+        of comments along with pagination details.
+      parameters:
+        - name: videoId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65b34b9dfb84d51b89c6bab1
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "714"
+            ETag:
+              schema:
+                type: string
+                example: W/"2ca-LTklqFZFASEA41M3kKnh6m0IzF4"
+            Date:
+              schema:
+                type: string
+                example: Fri, 26 Jan 2024 19:36:12 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  comments:
+                    - _id: 65b34b9dfb84d51b89c6baf1
+                      content: |-
+                        Capillus tricesimus crepusculum suscipit caput.
+                        Nihil textus vicinus ullus illo.
+                      video: 65b34b9dfb84d51b89c6bab1
+                      owner:
+                        _id: 65b34b9b2afcdbc23764bee0
+                        username: philip8
+                        fullName: Jake Borer
+                        avatar: >-
+                          https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/390.jpg
+                      __v: 0
+                      createdAt: "2024-01-26T06:05:17.938Z"
+                      updatedAt: "2024-01-26T06:05:17.938Z"
+                      likesOnComment: 1
+                      isLiked: false
+                  totalComments: 1
+                  limit: 10
+                  page: 1
+                  totalPages: 1
+                  pagingCounter: 1
+                  hasPrevPage: false
+                  hasNextPage: false
+                  prevPage: null
+                  nextPage: null
+                message: All comments are fetched
+                success: true
+    post:
+      tags:
+        - "Comment Management:"
+      summary: create-comment
+      description: >+
+
+        This HTTP POST request is used to add a comment to a specific video
+        identified by the videoId in the URL.
+
+
+        ### Request Body
+
+        The request body is of type x-www-form-urlencoded and includes the
+        following parameter:
+
+        - `content`: (text) - The text content of the comment.
+
+
+        ### Response
+
+        Upon successful execution, the response will have a status code of 201
+        and the following structure:
+
+        - `statusCode`: (number) The status code of the response.
+
+        - `data`: (object) The details of the newly added comment, including its
+        ID, content, video, owner, creation and update timestamps, and version.
+
+        - `message`: (string) Any additional message related to the response.
+
+        - `success`: (boolean) Indicates whether the request was successful.
+
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: this is second comment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: videoId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65aa787a44c87f79d736e337
+      responses:
+        "201":
+          description: Created
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "304"
+            ETag:
+              schema:
+                type: string
+                example: W/"130-R6/oo625t8bnraIXbAmCmaHMKMM"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:27:54 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 201
+                data:
+                  _id: 65ac812a2e3b782b6935b7c3
+                  content: this is third comment
+                  video: 65aa787a44c87f79d736e337
+                  owner: 65a6c8736f385e1a26256ab9
+                  createdAt: "2024-01-21T02:27:54.325Z"
+                  updatedAt: "2024-01-21T02:27:54.325Z"
+                  __v: 0
+                message: Comment added successfully
+                success: true
+  /api/v1/comments/c/{commentId}:
+    patch:
+      tags:
+        - "Comment Management:"
+      summary: update-comment
+      description: >
+
+        This endpoint allows for updating a specific comment by sending an HTTP
+        PATCH request to the specified URL. The request should include the
+        commentId in the URL path. The request body should be in
+        x-www-form-urlencoded format and include the 'content' parameter with
+        type 'text'.
+
+
+        ### Request Body
+
+        - content (text): The updated content of the comment.
+
+
+        ### Response
+
+        - Status: 200
+
+        - statusCode (number): The status code of the response.
+
+        - data (object): An object containing the updated comment details,
+        including _id, content, video, owner, createdAt, updatedAt, and __v.
+
+        - message (string): A message related to the response.
+
+        - success (boolean): Indicates whether the update was successful.
+
+
+        Example:
+
+        ```json
+
+        {
+            "statusCode": 0,
+            "data": {
+                "_id": "",
+                "content": "",
+                "video": "",
+                "owner": "",
+                "createdAt": "",
+                "updatedAt": "",
+                "__v": 0
+            },
+            "message": "",
+            "success": true
+        }
+
+        ```
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: comment updated second
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: commentId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65ac761d332e72b5167eca12
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "306"
+            ETag:
+              schema:
+                type: string
+                example: W/"132-ansCNxkQZfWrdWhOUvoVOqvLDQY"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:28:17 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  _id: 65ac761d332e72b5167eca12
+                  content: comment updated second
+                  video: 65aa787a44c87f79d736e337
+                  owner: 65a6c8736f385e1a26256ab9
+                  createdAt: "2024-01-21T01:40:45.192Z"
+                  updatedAt: "2024-01-21T02:28:17.590Z"
+                  __v: 0
+                message: Comment edited successfully
+                success: true
+    delete:
+      tags:
+        - "Comment Management:"
+      summary: comment-delete
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: commentId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65ac812a2e3b782b6935b7c3
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "88"
+            ETag:
+              schema:
+                type: string
+                example: W/"58-+0FrFSFYW2sa9IDmUDn/K5DaOPo"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:28:38 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data: {}
+                message: successfully deleted the comment
+                success: true
+  /api/v1/tweets/user/{userId}:
+    get:
+      tags:
+        - "Tweet Management:"
+      summary: get-all-tweets-of-user
+      description: >
+
+        This endpoint makes an HTTP GET request to retrieve tweets for a
+        specific user. Replace ":userId" in the URL with the user's ID to fetch
+        their tweets.
+
+
+        ### Response
+
+        - Status: 200
+
+        - Body:
+          ```json
+          {
+              "statusCode": 0,
+              "data": [
+                  {
+                      "_id": "",
+                      "content": "",
+                      "owner": "",
+                      "createdAt": "",
+                      "updatedAt": "",
+                      "__v": 0,
+                      "likes": [
+                          {
+                              "_id": ""
+                          }
+                      ],
+                      "totalLikes": 0
+                  }
+              ],
+              "message": "",
+              "success": true
+          }
+          ```
+
+        Add documentation
+      parameters:
+        - name: userId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65a6c8736f385e1a26256ab9
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "566"
+            ETag:
+              schema:
+                type: string
+                example: W/"236-W+nYTgseVSRXUxcqk61GbHcr8t8"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:28:54 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  - _id: 65aadddf52c6a1e3188b6986
+                    content: updated tweet
+                    owner: 65a6c8736f385e1a26256ab9
+                    createdAt: "2024-01-19T20:38:55.341Z"
+                    updatedAt: "2024-01-21T01:44:23.903Z"
+                    __v: 0
+                    likes:
+                      - _id: 65aaf38f5e6a262cd2ad1c53
+                      - _id: 65ac78fe332e72b5167eca43
+                    totalLikes: 2
+                  - _id: 65ac76df332e72b5167eca1b
+                    content: second tweet
+                    owner: 65a6c8736f385e1a26256ab9
+                    createdAt: "2024-01-21T01:43:59.171Z"
+                    updatedAt: "2024-01-21T01:43:59.171Z"
+                    __v: 0
+                    likes: []
+                    totalLikes: 0
+                message: Tweets fetched successfully
+                success: true
+  /api/v1/tweets:
+    post:
+      tags:
+        - "Tweet Management:"
+      summary: create-tweet
+      description: >+
+
+        This endpoint allows users to create a new tweet by sending an HTTP POST
+        request to the specified server. The request should include a payload
+        with the x-www-form-urlencoded request body type, with the 'content'
+        parameter specifying the type as 'text'.
+
+
+        ### Request Body
+
+        - content (text): The text content of the tweet.
+
+
+        ### Response
+
+        - Status: 200
+
+        - statusCode (number): The status code of the response.
+
+        - data (object): An object containing details of the created tweet,
+        including content, owner, ID, creation and update timestamps, and
+        version.
+
+        - message (string): A message related to the response.
+
+        - success (boolean): Indicates the success status of the request.
+
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: third tweet
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "260"
+            ETag:
+              schema:
+                type: string
+                example: W/"104-oP5PzUNEgUKGOaZ3rW0tUD4+ZTk"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:29:24 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 201
+                data:
+                  content: third tweet
+                  owner: 65a6c8736f385e1a26256ab9
+                  _id: 65ac81842e3b782b6935b7cf
+                  createdAt: "2024-01-21T02:29:24.056Z"
+                  updatedAt: "2024-01-21T02:29:24.056Z"
+                  __v: 0
+                message: successully created a tweet
+                success: true
+  /api/v1/tweets/{tweetId}:
+    patch:
+      tags:
+        - "Tweet Management:"
+      summary: update-tweet
+      description: >+
+
+        This endpoint allows you to update a specific tweet by sending an HTTP
+        PATCH request to the specified tweet ID.
+
+
+        ### Request Body
+
+        - The request should have an x-www-form-urlencoded body with the
+        following parameter:
+          - `content`: The updated content of the tweet. It should be of type text.
+
+        ### Response
+
+        Upon a successful update, the endpoint returns a status code of 200
+        along with a JSON response containing the updated tweet data.
+
+        - `statusCode`: An integer indicating the status of the response.
+
+        - `data`: An object containing the updated tweet details, including ID,
+        content, owner, creation and update timestamps, and version.
+
+        - `message`: A message related to the response.
+
+        - `success`: A boolean indicating the success status of the request.
+
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: updated tweet
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tweetId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65aadddf52c6a1e3188b6986
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "262"
+            ETag:
+              schema:
+                type: string
+                example: W/"106-9dXA1/JFcZxi4LdZ9ZtVxEJV17g"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:29:35 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 201
+                data:
+                  _id: 65aadddf52c6a1e3188b6986
+                  content: updated tweet
+                  owner: 65a6c8736f385e1a26256ab9
+                  createdAt: "2024-01-19T20:38:55.341Z"
+                  updatedAt: "2024-01-21T02:29:35.933Z"
+                  __v: 0
+                message: Successully updated a tweet
+                success: true
+    delete:
+      tags:
+        - "Tweet Management:"
+      summary: delete-tweet
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tweetId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65aadddf52c6a1e3188b6986
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "83"
+            ETag:
+              schema:
+                type: string
+                example: W/"53-dOvwEz5hXqYUVlBqxCwwtIpxWPY"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:31:59 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 201
+                data: {}
+                message: Successully deleted a tweet
+                success: true
+  /api/v1/subscriptions/c/{channelId}:
+    post:
+      tags:
+        - "Subscription Management:"
+      summary: toggle-subscription
+      description: >
+
+        This endpoint allows you to subscribe to a specific channel by making an
+        HTTP POST request to the specified URL.
+
+
+        The request body for this endpoint has an undefined type and does not
+        contain any specific payload.
+
+
+        ### Response
+
+        - Status: 200
+
+        - statusCode (number): The status code of the response.
+
+        - data (string): The data returned in the response.
+
+        - message (string): Additional information or message related to the
+        response.
+
+        - success (boolean): Indicates whether the request was successful or
+        not.
+      requestBody:
+        content: {}
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: channelId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65aae442f2153225b823cb3a
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "95"
+            ETag:
+              schema:
+                type: string
+                example: W/"5f-LMDULzHh94WR7tpzxJGeY2kIn4M"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:32:28 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 201
+                data: successfully toggle subscription
+                message: Success
+                success: true
+    get:
+      tags:
+        - "Subscription Management:"
+      summary: getUserChannelSubscribers
+      description: >
+
+        This endpoint makes an HTTP GET request to retrieve the subscriptions
+        for a specific channel identified by the channelId in the URL.
+
+
+        The response to the last call returned a status code of 200, along with
+        a JSON object containing the statusCode, data array, message, and
+        success indicators.
+
+
+        The data array includes details such as _id, username, email, fullName,
+        avatar, coverImage, subscribers, subscribersCount, and isSubscribed for
+        the specified channel.
+
+
+        The user can use this endpoint to retrieve subscription details for a
+        specific channel.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: channelId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65a6c8736f385e1a26256ab9
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "573"
+            ETag:
+              schema:
+                type: string
+                example: W/"23d-AzBIpTwbU6oefIHH+TgYJBZyBxE"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:40:39 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: getUserChannelSubscribers
+                  value:
+                    statusCode: 200
+                    data:
+                      - _id: 65a6c8736f385e1a26256ab9
+                        username: one
+                        email: ONE@gmail.com
+                        fullName: One One
+                        avatar: >-
+                          http://res.cloudinary.com/doh56heah/image/upload/v1705803664/pwkjhxbabprbxeof9c5e.png
+                        coverImage: >-
+                          http://res.cloudinary.com/doh56heah/image/upload/v1705803693/rvzzueylen9xlbcnuv5g.png
+                        subscribers:
+                          - subscriber: 65aae442f2153225b823cb3a
+                          - subscriber: 65ac7389332e72b5167ec9f6
+                          - subscriber: 65a6c8736f385e1a26256ab9
+                        subscribersCount: 3
+                        isSubscribed: true
+                    message: " channel subscriber fetched successfully"
+                    success: true
+                example-1:
+                  summary: getUserChannelSubscribers
+                  value:
+                    statusCode: 200
+                    data:
+                      _id: 65a6c8736f385e1a26256ab9
+                      subscribersCount: 1
+                      isSubscribed: false
+                      subscribers:
+                        - _id: 65ac7389332e72b5167ec9f6
+                          username: three
+                          fullName: three
+                          avatar: >-
+                            http://res.cloudinary.com/doh56heah/image/upload/v1705800584/wwuobz864rtifzlxgbbr.png
+                          createdAt: "2024-01-21T01:29:45.909Z"
+                    message: Channel subscribers fetched successfully
+                    success: true
+  /api/v1/subscriptions/u/{subscriberId}:
+    get:
+      tags:
+        - "Subscription Management:"
+      summary: get-Subscribed-Channels
+      description: >+
+
+        This endpoint makes an HTTP GET request to retrieve subscription details
+        for a specific subscriber. The `subscriberId` parameter in the URL path
+        specifies the unique identifier of the subscriber for whom the
+        subscription details are being fetched.
+
+
+        The request does not contain a request body, and the last call used a
+        null payload.
+
+
+        ### Response
+
+        - Status: 200
+
+        - Body:
+            ```json
+            {
+                "statusCode": 0,
+                "data": {
+                    "_id": "",
+                    "username": "",
+                    "email": "",
+                    "fullName": "",
+                    "avatar": "",
+                    "coverImage": "",
+                    "subscribedTo": [
+                        {
+                            "subscriber": ""
+                        }
+                    ],
+                    "channelsSubscribedToCount": 0
+                },
+                "message": "",
+                "success": true
+            }
+            ```
+
+        The response returns a status code of 200 and a JSON object containing
+        the subscription details for the specified subscriber. The `data` object
+        includes fields such as `_id`, `username`, `email`, `fullName`,
+        `avatar`, `coverImage`, `subscribedTo`, and `channelsSubscribedToCount`.
+        The `subscribedTo` field provides an array of subscribers, and the
+        `channelsSubscribedToCount` indicates the total count of subscribed
+        channels.
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: subscriberId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65a6c8736f385e1a26256ab9
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "467"
+            ETag:
+              schema:
+                type: string
+                example: W/"1d3-M6vD7eHKO9ZfUYEYy9E3v6mp220"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 03:20:49 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: get-Subscribed-Channels
+                  value:
+                    statusCode: 200
+                    data:
+                      _id: 65a6c8736f385e1a26256ab9
+                      username: one
+                      email: ONE@gmail.com
+                      fullName: One One
+                      avatar: >-
+                        http://res.cloudinary.com/doh56heah/image/upload/v1705803664/pwkjhxbabprbxeof9c5e.png
+                      coverImage: >-
+                        http://res.cloudinary.com/doh56heah/image/upload/v1705803693/rvzzueylen9xlbcnuv5g.png
+                      subscribedTo:
+                        - channel: 65aae442f2153225b823cb3a
+                      channelsSubscribedToCount: 1
+                    message: User channel fetched successfully
+                    success: true
+                example-1:
+                  summary: get-Subscribed-Channels
+                  value:
+                    statusCode: 200
+                    data:
+                      - _id: 65aae442f2153225b823cb3a
+                        username: two
+                        fullName: two
+                        avatar: >-
+                          http://res.cloudinary.com/doh56heah/image/upload/v1705698368/fveera84wlfaw1347esl.png
+                        createdAt: "2024-01-21T02:18:08.828Z"
+                      - _id: 65ac7389332e72b5167ec9f6
+                        username: three
+                        fullName: three
+                        avatar: >-
+                          http://res.cloudinary.com/doh56heah/image/upload/v1705800584/wwuobz864rtifzlxgbbr.png
+                        createdAt: "2024-01-21T01:29:45.909Z"
+                      - _id: 65ac7ee08f8ed6566d87691e
+                        username: fourth
+                        fullName: fourth
+                        avatar: >-
+                          http://res.cloudinary.com/doh56heah/image/upload/v1705803486/fshz2f9f7e9fvqcgpcl3.png
+                        createdAt: "2024-01-21T02:18:08.828Z"
+                    message: User channels fetched successfully
+                    success: true
+  /api/v1/likes/videos:
+    get:
+      tags:
+        - "Like Management:"
+      summary: get-all-videos-likedby-user
+      description: >
+
+        This endpoint makes an HTTP GET request to retrieve a list of liked
+        videos. The response will include a status code of 200, along with an
+        array of data containing details of the liked videos. Each video object
+        in the data array includes information such as the video file name, URL,
+        thumbnail details, owner, title, description, duration, publication
+        status, creation and update timestamps, views, and other relevant
+        attributes.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "642"
+            ETag:
+              schema:
+                type: string
+                example: W/"282-zDHQDx3qr+rrme+G4EbVFWSM3HQ"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 03:07:56 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  - _id: 65aa787a44c87f79d736e337
+                    videoFile:
+                      fileName: uzlrulk6zawwp91202mo
+                      url: >-
+                        http://res.cloudinary.com/doh56heah/video/upload/v1705670775/uzlrulk6zawwp91202mo.mp4
+                    thumbnail:
+                      fileName: scijtt8ynh4thgmyeiqe
+                      url: >-
+                        http://res.cloudinary.com/doh56heah/image/upload/v1705800905/scijtt8ynh4thgmyeiqe.png
+                    owner: 65a6c8736f385e1a26256ab9
+                    title: updated video
+                    description: viedo update succssfully
+                    duration: 14.2142
+                    isPublished: true
+                    createdAt: "2024-01-19T13:26:18.198Z"
+                    updatedAt: "2024-01-21T02:23:30.297Z"
+                    __v: 0
+                    views: 18
+                message: liked videos fetched successfully
+                success: true
+  /api/v1/likes/toggle/v/{videoId}:
+    post:
+      tags:
+        - "Like Management:"
+      summary: toggle-video-like
+      description: >
+
+        This endpoint allows you to toggle the like button for a specific video
+        by sending an HTTP POST request to the specified URL. The request should
+        include the videoId as a route parameter.
+
+
+        The response will have a status code of 200, along with a JSON object
+        containing the statusCode, data, message, and success properties. The
+        statusCode indicates the status of the operation, while the data
+        property may contain relevant information. The message provides
+        additional details about the operation, and the success property
+        indicates whether the operation was successful.
+
+
+        For example, a successful response may look like this:
+
+        ```json
+
+        {
+            "statusCode": 200,
+            "data": {},
+            "message": "successfully toggle like button",
+            "success": true
+        }
+
+        ```
+      requestBody:
+        content: {}
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: videoId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65aa787a44c87f79d736e337
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "87"
+            ETag:
+              schema:
+                type: string
+                example: W/"57-llKJZOP24S7t1Ee1Mi+aqjzc2K8"
+            Date:
+              schema:
+                type: string
+                example: Fri, 19 Jan 2024 19:10:53 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data: {}
+                message: successfully toggle like button
+                success: true
+  /api/v1/likes/toggle/c/{commentId}:
+    post:
+      tags:
+        - "Like Management:"
+      summary: toggle-comments-like
+      description: |-
+        ### Toggle Comment Like
+
+        This endpoint is used to toggle the like status of a comment.
+
+        #### Request
+
+        - Method: POST
+        - URL: `http://localhost:3000/api/v1/likes/toggle/c/:commentId`
+        - Body: (undefined)
+            
+
+        #### Response
+
+        - Status: 200
+        - Data:
+            
+            ``` json
+            {
+                "statusCode": 0,
+                "data": {},
+                "message": "",
+                "success": true
+            }
+            
+             ```
+      requestBody:
+        content: {}
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: commentId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65aad52a4394e2bc016d9ae9
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "87"
+            ETag:
+              schema:
+                type: string
+                example: W/"57-llKJZOP24S7t1Ee1Mi+aqjzc2K8"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:47:59 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data: {}
+                message: successfully toggle like button
+                success: true
+  /api/v1/likes/toggle/t/{tweetId}:
+    post:
+      tags:
+        - "Like Management:"
+      summary: toggle-tweet-like
+      description: >
+
+        This HTTP POST request is used to toggle the like status of a tweet by
+        providing the tweet ID in the request URL. The request does not require
+        a request body. 
+
+
+        ### Response
+
+        - Status: 200
+
+        - Body:
+            ```json
+            {
+                "statusCode": 0,
+                "data": {},
+                "message": "",
+                "success": true
+            }
+            ```
+      requestBody:
+        content: {}
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tweetId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65aadddf52c6a1e3188b6986
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "87"
+            ETag:
+              schema:
+                type: string
+                example: W/"57-llKJZOP24S7t1Ee1Mi+aqjzc2K8"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:48:13 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data: {}
+                message: successfully toggle like button
+                success: true
+  /api/v1/dashboard/stats/{channelId}:
+    get:
+      tags:
+        - "Dashboard:"
+      summary: stats
+      description: >
+
+        This endpoint makes an HTTP GET request to retrieve statistics for the
+        dashboard. The request does not contain a request body. 
+
+
+        ### Response
+
+        - Status: 200
+
+        - Body:
+          ```json
+          {
+              "statusCode": 0,
+              "data": {
+                  "totalVideos": 0,
+                  "totalViews": 0,
+                  "totalLikesOnVideo": 0,
+                  "totalSubscriber": 0
+              },
+              "message": "",
+              "success": true
+          }
+          ```
+
+        This response returns the statistics data including the total number of
+        videos, views, likes on videos, and subscribers. The "statusCode"
+        indicates the status of the response, "message" provides any additional
+        information, and "success" indicates the success status of the response.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: channelId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65b34b9b2afcdbc23764bedf
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "183"
+            ETag:
+              schema:
+                type: string
+                example: W/"b7-eXVSahQry09WAUB7dy3sFmthXUA"
+            Date:
+              schema:
+                type: string
+                example: Fri, 26 Jan 2024 19:37:15 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  subscribersCount: 0
+                  channelsSubscribedToCount: 3
+                  totalVideos: 4
+                  totalViews: 0
+                  totalLikes: 7
+                message: User stats fetched successfully
+                success: true
+  /api/v1/dashboard/videos/{channelId}:
+    get:
+      tags:
+        - "Dashboard:"
+      summary: get-Channel-Videos
+      description: >+
+
+        This HTTP GET request is used to retrieve a list of videos for a
+        specific channel on the dashboard. The request should be made to the
+        endpoint `http://localhost:3000/api/v1/dashboard/videos/:channelId`,
+        where `:channelId` is the unique identifier of the channel.
+
+
+        The response to the request will have a status code of 200, indicating a
+        successful operation. The response body will contain a JSON object with
+        the following properties:
+
+        - `statusCode`: An integer representing the status of the operation.
+
+        - `data`: An array of video objects, each containing details about a
+        video, such as file name, URL, thumbnail, owner details, title,
+        description, duration, publication status, creation and update
+        timestamps, and view count.
+
+        - `message`: A string providing additional information about the
+        operation.
+
+        - `success`: A boolean indicating the success status of the operation.
+
+
+        The `data` array includes nested objects for `videoFile`, `thumbnail`,
+        and `owner`, each with their respective details.
+
+      parameters:
+        - name: channelId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65a6c8736f385e1a26256ab9
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "2848"
+            ETag:
+              schema:
+                type: string
+                example: W/"b20-dSQNhaQ3JmwPMPJoMi0R7R+ffKk"
+            Date:
+              schema:
+                type: string
+                example: Fri, 26 Jan 2024 19:37:54 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  - videoFile:
+                      fileName: spoliatio
+                      url: >-
+                        https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/1139.jpg
+                    thumbnail:
+                      fileName: urbanus
+                      url: >-
+                        https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/276.jpg
+                    _id: 65b34b9dfb84d51b89c6bab0
+                    owner:
+                      _id: 65b34b9b2afcdbc23764bedf
+                      username: tomasa.wolff
+                      fullName: Dr. Leroy Marks
+                      avatar: https://avatars.githubusercontent.com/u/15435448
+                      createdAt: "2024-01-26T06:05:15.257Z"
+                    title: repellat
+                    description: |-
+                      Caveo deinde conculco autus dolorem vado bos.
+                      Tui harum talio sub denuncio verumtamen terminatio.
+                    duration: 8
+                    views: 0
+                    isPublished: true
+                    __v: 0
+                    createdAt: "2024-01-26T06:05:17.913Z"
+                    updatedAt: "2024-01-26T06:05:17.913Z"
+                  - videoFile:
+                      fileName: usque
+                      url: >-
+                        https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/341.jpg
+                    thumbnail:
+                      fileName: corrigo
+                      url: https://avatars.githubusercontent.com/u/2815391
+                    _id: 65b34b9dfb84d51b89c6bacd
+                    owner:
+                      _id: 65b34b9b2afcdbc23764bedf
+                      username: tomasa.wolff
+                      fullName: Dr. Leroy Marks
+                      avatar: https://avatars.githubusercontent.com/u/15435448
+                      createdAt: "2024-01-26T06:05:15.257Z"
+                    title: basium
+                    description: Defaeco succurro facilis.
+                    duration: 4
+                    views: 0
+                    isPublished: true
+                    __v: 0
+                    createdAt: "2024-01-26T06:05:17.914Z"
+                    updatedAt: "2024-01-26T06:05:17.914Z"
+                  - videoFile:
+                      fileName: soluta
+                      url: https://avatars.githubusercontent.com/u/35058380
+                    thumbnail:
+                      fileName: cresco
+                      url: >-
+                        https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/1119.jpg
+                    _id: 65b34b9dfb84d51b89c6bada
+                    owner:
+                      _id: 65b34b9b2afcdbc23764bedf
+                      username: tomasa.wolff
+                      fullName: Dr. Leroy Marks
+                      avatar: https://avatars.githubusercontent.com/u/15435448
+                      createdAt: "2024-01-26T06:05:15.257Z"
+                    title: casso
+                    description: |-
+                      Consuasor antea triumphus aptus.
+                      Acerbitas conqueror sum urbanus laborum decipio desolo.
+                    duration: 13
+                    views: 0
+                    isPublished: true
+                    __v: 0
+                    createdAt: "2024-01-26T06:05:17.915Z"
+                    updatedAt: "2024-01-26T06:05:17.915Z"
+                  - videoFile:
+                      fileName: bonus
+                      url: https://avatars.githubusercontent.com/u/66270082
+                    thumbnail:
+                      fileName: canis
+                      url: https://avatars.githubusercontent.com/u/19921062
+                    _id: 65b34b9dfb84d51b89c6bae7
+                    owner:
+                      _id: 65b34b9b2afcdbc23764bedf
+                      username: tomasa.wolff
+                      fullName: Dr. Leroy Marks
+                      avatar: https://avatars.githubusercontent.com/u/15435448
+                      createdAt: "2024-01-26T06:05:15.257Z"
+                    title: dedico
+                    description: Celo tondeo nostrum amplexus quibusdam compello decipio.
+                    duration: 15
+                    views: 0
+                    isPublished: true
+                    __v: 0
+                    createdAt: "2024-01-26T06:05:17.915Z"
+                    updatedAt: "2024-01-26T06:05:17.915Z"
+                message: All videos fetched successfully
+                success: true
+  /api/v1/playlist/{playlistId}:
+    get:
+      tags:
+        - "Playlist Management:"
+      summary: get-playlist-by-id
+      description: >
+
+        This endpoint makes an HTTP GET request to retrieve details of a
+        specific playlist identified by the provided playlistId.
+
+
+        The request does not contain a request body. The playlistId is included
+        in the URL parameters.
+
+
+        ### Response
+
+        - Status: 200
+
+        - Body:
+            ```json
+            {
+                "statusCode": 0,
+                "data": {
+                    "_id": "",
+                    "name": "",
+                    "description": "",
+                    "videos": [],
+                    "owner": {
+                        "_id": "",
+                        "username": "",
+                        "fullName": "",
+                        "avatar": "",
+                        "createdAt": ""
+                    },
+                    "createdAt": "",
+                    "updatedAt": "",
+                    "__v": 0
+                },
+                "message": "",
+                "success": true
+            }
+            ```
+
+        Add documentation
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: playlistId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65ac2adfc7e858d541cb9d2a
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "486"
+            ETag:
+              schema:
+                type: string
+                example: W/"1e6-BReIvSUZnxvGJU+RW2R5kTjhnWk"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:52:08 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  _id: 65ac2adfc7e858d541cb9d2a
+                  name: updated playlists
+                  description: "udated by Two "
+                  videos: []
+                  owner:
+                    _id: 65aae442f2153225b823cb3a
+                    username: two
+                    fullName: two
+                    avatar: >-
+                      http://res.cloudinary.com/doh56heah/image/upload/v1705698368/fveera84wlfaw1347esl.png
+                    createdAt: "2024-01-19T21:06:10.276Z"
+                  createdAt: "2024-01-20T20:19:43.046Z"
+                  updatedAt: "2024-01-20T20:40:58.062Z"
+                  __v: 0
+                message: playlist fetched successfully
+                success: true
+    patch:
+      tags:
+        - "Playlist Management:"
+      summary: Update-playlist-by-id
+      description: >-
+        This endpoint makes an HTTP PATCH request to update a specific playlist
+        identified by :playlistId on the server. The request body should be of
+        type x-www-form-urlencoded and include the parameters "name" and
+        "description" to update the playlist details.
+
+
+        ### Request Body
+
+
+        - name (text): (description not provided)
+
+        - description (text): (description not provided)
+            
+
+        ### Response
+
+
+        - Status: 200
+
+        - statusCode (number): 0
+
+        - data (object):
+            - _id (string)
+            - name (string)
+            - description (string)
+            - videos (array)
+            - owner (string)
+            - createdAt (string)
+            - updatedAt (string)
+            - __v (number)
+        - message (string)
+
+        - success (boolean)
+            
+
+        This endpoint successfully updates the specified playlist and returns a
+        status code of 200 upon successful execution.
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: updated playlists
+                description:
+                  type: string
+                  example: udated by third
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: playlistId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65ac7a8b332e72b5167eca54
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "299"
+            ETag:
+              schema:
+                type: string
+                example: W/"12b-oxmyO+Vpwa6J0TPEH+LNSFG8hrQ"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:54:10 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  _id: 65ac86f8ec43f3a2904b4717
+                  name: updated playlists
+                  description: udated by third
+                  videos: []
+                  owner: 65a6c8736f385e1a26256ab9
+                  createdAt: "2024-01-21T02:52:40.184Z"
+                  updatedAt: "2024-01-21T02:54:10.733Z"
+                  __v: 0
+                message: udated the playlist
+                success: true
+    delete:
+      tags:
+        - "Playlist Management:"
+      summary: delete-playlist-by-id
+      description: >-
+        This endpoint is used to delete a specific playlist identified by the
+        provided playlistId.
+
+
+        The request does not require a request body.
+
+
+        ### Response
+
+
+        - Status: 200
+
+        - statusCode (number): Indicates the status of the operation.
+
+        - data (object): An empty object.
+
+        - message (string): A message indicating the result of the operation.
+
+        - success (boolean): Indicates whether the operation was successful.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: playlistId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65ac7a8b332e72b5167eca54
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "76"
+            ETag:
+              schema:
+                type: string
+                example: W/"4c-bAuf0Gcfdi4XH+WH3IIcRC65Qr8"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:55:24 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data: {}
+                message: deleted successfully
+                success: true
+  /api/v1/playlist/user/{userId}:
+    get:
+      tags:
+        - "Playlist Management:"
+      summary: get-user-playlists
+      description: >
+
+        This endpoint makes an HTTP GET request to retrieve the playlist for a
+        specific user. The `:userId` parameter in the URL should be replaced
+        with the user's unique identifier. The request does not include a
+        request body.
+
+
+        ### Response
+
+        - Status: 200
+
+        - Body:
+          ```json
+          {
+            "statusCode": 0,
+            "data": [
+              {
+                "_id": "",
+                "name": "",
+                "description": "",
+                "videos": [],
+                "owner": "",
+                "createdAt": "",
+                "updatedAt": "",
+                "__v": 0
+              }
+            ],
+            "message": "",
+            "success": true
+          }
+          ```
+
+        The response returns a status code of 200 along with an array of
+        playlist objects associated with the user. Each playlist object includes
+        an identifier, name, description, videos, owner, creation and update
+        timestamps, and a version field.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65aae442f2153225b823cb3a
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "311"
+            ETag:
+              schema:
+                type: string
+                example: W/"137-b6XVibM9P6H+MNUBWSwuZyDjRsQ"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:52:19 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  - _id: 65ac2adfc7e858d541cb9d2a
+                    name: updated playlists
+                    description: "udated by Two "
+                    videos: []
+                    owner: 65aae442f2153225b823cb3a
+                    createdAt: "2024-01-20T20:19:43.046Z"
+                    updatedAt: "2024-01-20T20:40:58.062Z"
+                    __v: 0
+                message: playlists succussfully fatched
+                success: true
+  /api/v1/playlist:
+    post:
+      tags:
+        - "Playlist Management:"
+      summary: create-playlist
+      description: >
+
+        This endpoint allows you to create a new playlist by sending an HTTP
+        POST request to the specified server.
+
+
+        ### Request Body
+
+        | Key | Type | Description |
+
+        |-----|------|-------------|
+
+        | name | text |  |
+
+        | description | text |  |
+
+
+        ### Response
+
+        - Status: 200
+
+        - Body:
+          ```json
+          {
+            "statusCode": 0,
+            "data": {
+              "name": "",
+              "description": "",
+              "videos": [],
+              "owner": "",
+              "_id": "",
+              "createdAt": "",
+              "updatedAt": "",
+              "__v": 0
+            },
+            "message": "",
+            "success": true
+          }
+          ```
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: first playlist
+                description:
+                  type: string
+                  example: cretated by third
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "308"
+            ETag:
+              schema:
+                type: string
+                example: W/"134-/pzkWwm5dNpAYBU2qSs1Z8f6L0Y"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:52:40 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 201
+                data:
+                  name: first playlist
+                  description: cretated by third
+                  videos: []
+                  owner: 65a6c8736f385e1a26256ab9
+                  _id: 65ac86f8ec43f3a2904b4717
+                  createdAt: "2024-01-21T02:52:40.184Z"
+                  updatedAt: "2024-01-21T02:52:40.184Z"
+                  __v: 0
+                message: playlist created successfully
+                success: true
+  /api/v1/playlist/add/{videoId}/{playlistId}:
+    patch:
+      tags:
+        - "Playlist Management:"
+      summary: add-video-to-playlist
+      description: >-
+        This HTTP PATCH request is used to add a specific video to a playlist by
+        providing the video ID and the playlist ID in the URL parameters. The
+        request does not require a request body.
+
+
+        The response to the request returns a status code of 200 along with a
+        JSON object. The JSON object contains information about the updated
+        playlist, including its ID, name, description, owner, creation and
+        update timestamps, and a list of videos in the playlist. The "success"
+        field indicates whether the operation was successful.
+      requestBody:
+        content: {}
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: videoId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65aa787a44c87f79d736e337
+        - name: playlistId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65ac7a8b332e72b5167eca54
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "340"
+            ETag:
+              schema:
+                type: string
+                example: W/"154-RojChAzQ35t6hQVtl38IrEIpZT8"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:54:48 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  _id: 65ac86f8ec43f3a2904b4717
+                  name: updated playlists
+                  description: udated by third
+                  videos:
+                    - 65aa787a44c87f79d736e337
+                  owner: 65a6c8736f385e1a26256ab9
+                  createdAt: "2024-01-21T02:52:40.184Z"
+                  updatedAt: "2024-01-21T02:54:48.947Z"
+                  __v: 0
+                message: successfully added to the playlist
+                success: true
+  /api/v1/playlist/remove/{videoId}/{playlistId}:
+    patch:
+      tags:
+        - "Playlist Management:"
+      summary: remove-video-from-playlist
+      description: >-
+        This HTTP PATCH request is used to remove a specific video from a
+        playlist by providing the video ID and the playlist ID in the URL
+        parameters.
+
+
+        The request does not contain a request body, and the response returns a
+        status code of 200 along with a JSON object. The JSON object includes a
+        statusCode, data object with details of the updated playlist, message,
+        and success status.
+
+
+        The data object contains fields such as _id, name, description, videos,
+        owner, createdAt, updatedAt, and __v, providing information about the
+        updated playlist.
+
+
+        To remove a video from a playlist, make a PATCH request to the specified
+        endpoint with the video ID and playlist ID in the URL parameters.
+      requestBody:
+        content: {}
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: videoId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65aa787a44c87f79d736e337
+        - name: playlistId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 65ac7a8b332e72b5167eca54
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "312"
+            ETag:
+              schema:
+                type: string
+                example: W/"138-9Yxon2mKef0LLLZgvARND1P5iD0"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:55:10 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  _id: 65ac86f8ec43f3a2904b4717
+                  name: updated playlists
+                  description: udated by third
+                  videos: []
+                  owner: 65a6c8736f385e1a26256ab9
+                  createdAt: "2024-01-21T02:52:40.184Z"
+                  updatedAt: "2024-01-21T02:55:10.571Z"
+                  __v: 0
+                message: successfully removed to playlist
+                success: true
+  /api/v1/healthcheck:
+    get:
+      tags:
+        - default
+      summary: health-check
+      description: >-
+        This endpoint performs an HTTP GET request to check the health status of
+        the server.
+
+
+        The request does not contain a request body.
+
+
+        ### Response
+
+
+        - Status: 200
+
+        - Body:
+            
+            ``` json
+            {
+                "message": "",
+                "success": true
+            }
+            
+             ```
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: "true"
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: "31"
+            ETag:
+              schema:
+                type: string
+                example: W/"1f-dL2u3fdV9tD9KWVEKMP+VnEbu9Q"
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Jan 2024 02:55:39 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                message: ok
+                success: true
+  /api/v1/seeding:
+    get:
+      tags:
+        - default
+      summary: seed-data
+      responses:
+        '201':
+          description: Created
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: 'true'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '63'
+            ETag:
+              schema:
+                type: string
+                example: W/"3f-QI443GWrJLwIkNFmePj9Z+a2fRc"
+            Date:
+              schema:
+                type: string
+                example: Fri, 26 Jan 2024 22:40:43 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 201
+                data: {}
+                message: success
+                success: true
+  /api/v1/credentials:
+    get:
+      tags:
+        - default
+      summary: get Generated Credentials
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: 'true'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '1236'
+            ETag:
+              schema:
+                type: string
+                example: W/"4d4-lfJWxh+eNFgM6uFIE5A6lj0Hih8"
+            Date:
+              schema:
+                type: string
+                example: Fri, 26 Jan 2024 22:43:30 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                statusCode: 200
+                data:
+                  - username: wilber.armstrong35
+                    password: gQIgyFRDJPCxNkB
+                  - username: judge_baumbach20
+                    password: qC_fYsqxGxbl9GF
+                  - username: chance_larkin
+                    password: jHZwNTK3tbCzMta
+                  - username: shannon_rodriguez-kautzer
+                    password: ok26miYNmlN4gzR
+                  - username: natasha_fay
+                    password: ZSCC1ST5xsdw0r8
+                  - username: angelita46
+                    password: zE50r1SjM1w9ksu
+                  - username: jacquelyn53
+                    password: AD8nAEE6NgUs5D5
+                  - username: brice_harris
+                    password: bcjQSsDv_nXW32g
+                  - username: ava.jenkins
+                    password: yzh4Wf8hdW2OgSc
+                  - username: duane_doyle
+                    password: Of9LE7L0y2sstIy
+                  - username: austin10
+                    password: cJOOYnsoy3mXAPD
+                  - username: michelle.hyatt1
+                    password: NHN_HLdLzCbIJff
+                  - username: avis72
+                    password: MAZ2Qw5_mZmtopy
+                  - username: lorenz80
+                    password: lbeUuJKmrGoS5Lz
+                  - username: adam.marvin
+                    password: fSD89RDlU0C0d36
+                  - username: isabell_bashirian27
+                    password: SIwlzaFpu7yowzW
+                  - username: ned.lueilwitz64
+                    password: 5sVoMvbI6doMrUD
+                  - username: novella34
+                    password: JVC5SDmqfivK3vi
+                  - username: enrico35
+                    password: gNXTGjcu8lVJf3p
+                  - username: nils46
+                    password: NtIIepmlQAaOCUg
+                message: Dummy credentials fetched successfully
+                success: true

@@ -144,7 +144,10 @@ const loginUser = asyncHandler(async (req, res) => {
  * Handles user logout.
  */
 const logoutUser = asyncHandler(async (req, res) => {
-  await User.findByIdAndUpdate(req.user?._id, {
+  if (!req.user) {
+    throw new ApiError(401, "Unauthorized request");
+  }
+  const user = await User.findByIdAndUpdate(req.user?._id, {
     $unset: {
       refreshToken: 1,
     },
