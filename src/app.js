@@ -7,8 +7,6 @@ import { fileURLToPath } from "url";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yaml";
 import helmet from "helmet";
-import rateLimit from "express-rate-limit";
-import { ApiError } from "./utils/ApiError.js";
 
 export const app = express();
 
@@ -22,36 +20,6 @@ app.use(
   })
 );
 
-app.use((req, res, next) => {
-  // res.setHeader(
-  //   "Strict-Transport-Security",
-  //   "max-age=31536000; includeSubDomains; preload"
-  // );
-  res.setHeader("Content-Type", "application/json");
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  next();
-});
-
-const limiter = rateLimit({
-  windowMs: 20 * 60 * 1000,
-  limit: 20,
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req, res) => {
-    return req.ip;
-  },
-  handler: (_, __, ___, options) => {
-    throw new ApiError(
-      options.statusCode || 500,
-      `There are too many requests. You are only allowed ${
-        options.limit
-      } requests per ${options.windowMs / 60000} minutes`
-    );
-  },
-});
-
-app.use(limiter);
-
 app.use(
   helmet({
     contentSecurityPolicy: false,
@@ -62,6 +30,15 @@ app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 app.use(cookieParser(signedCookiesSecret));
+// app.use((req, res, next) => {
+//   // res.setHeader(
+//   //   "Strict-Transport-Security",
+//   //   "max-age=31536000; includeSubDomains; preload" // for https
+//   // );
+//   // res.setHeader("Content-Type", "application/json");
+//   res.setHeader("X-Content-Type-Options", "nosniff");
+//   next();
+// });
 
 //middleware route
 import { errorHandler } from "./middlewares/error.middlewares.js";
@@ -112,7 +89,16 @@ try {
   console.log(error);
 }
 // api-documention on root path
-app.use("/", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(
+  "/",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument, {
+    customCss: ".swagger-ui .topbar { display: none }",
+    customfavIcon:
+      "https://res.cloudinary.com/doh56heah/image/upload/v1706810486/Portfollio/icons8-youtube-50_mq2ezd.png",
+    customSiteTitle: "Youtube-backend",
+  })
+);
 
 //404 error
 app.use((req, res) => {
