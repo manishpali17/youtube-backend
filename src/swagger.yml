@@ -7,7 +7,7 @@ info:
     Find more about his project in the documentaion below._
   version: 1.0.0
 servers:
-  - url: http://localhost:3000
+  - url: https://youtube-backend-hoq4.onrender.com
 components:
   securitySchemes:
     bearerAuth:
