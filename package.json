@@ -1,11 +1,11 @@
 {
   "name": "youtube",
   "version": "1.0.0",
-  "description": "a clone of youtube",
+  "description": "A clone of youtube",
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
+    "start": "node src/index.js",
     "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
   },
   "author": "Manish Pali",
