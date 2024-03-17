@@ -13,22 +13,23 @@ const videoSchema = new mongoose.Schema(
       },
       url: {
         type: String,
-        reqiured: true,
+        required: true,
       },
     },
     thumbnail: {
       fileName: {
         type: String,
-        reqiured: true,
+        required: true,
       },
       url: {
         type: String,
-        reqiured: true,
+        required: true,
       },
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true
     },
     title: {
       type: String,
@@ -44,7 +45,7 @@ const videoSchema = new mongoose.Schema(
     },
     views: {
       type: Number,
-      defaultValue: 0,
+      default: 0,
     },
     isPublished: {
       type: Boolean,
@@ -58,15 +59,22 @@ videoSchema.plugin(mongooseAggregatePaginate);
 videoSchema.post("findOneAndDelete", async (video, next) => {
   if (video) {
     try {
-      const commentTodelete = await Comment.find({ video: video._id });
-      for (const comment in commentTodelete) {
-        await Comment.findOneAndDelete(comment._id);
+      // Deleting associated comments
+      const commentsToDelete = await Comment.find({ video: video._id });
+      for (const comment of commentsToDelete) {
+        await Comment.findByIdAndDelete(comment._id);
       }
-      await Like.find({ video: video._id });
+
+      // Deleting associated likes
+      await Like.deleteMany({ video: video._id });
+
+      // Removing the video from user's watch history
       await User.findOneAndUpdate(
         { _id: video.owner },
         { $pull: { watchHistory: video._id } }
       );
+
+      // Deleting files from Cloudinary
       const result = await deleteOnCloudinary(video.videoFile.fileName, {
         resource_type: "video",
       });
@@ -75,10 +83,12 @@ videoSchema.post("findOneAndDelete", async (video, next) => {
       console.log(thumbnail);
     } catch (error) {
       console.error(`Error deleting video: ${error.message}`);
+      // Ensure the error is propagated properly
+      return next(error);
     }
-    next();
   }
   next();
 });
+
 
 export const Video = mongoose.model("Video", videoSchema);

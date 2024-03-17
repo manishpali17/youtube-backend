@@ -29,9 +29,6 @@ const getAllVideos = asyncHandler(async (req, res) => {
   const sortByField = ["createdAt", "duration", "views"];
   const sortTypeArr = ["asc", "dsc"];
 
-  if (!(query || userId)) {
-    throw new ApiError(404, "Send a query or userId to get videos");
-  }
   if (!sortByField.includes(sortBy) || !sortTypeArr.includes(sortType)) {
     throw new ApiError(400, "Please send valid fields for sortBy or sortType");
   }
@@ -50,7 +47,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
               { isPublished: true },
               {
                 $or: [
-                  { title: query ? { $regex: query, $options: "i" } : null },
+                  { title: query ? { $regex: query, $options: "i" } : { $exists: true } },
                   {
                     description: query
                       ? { $regex: query, $options: "i" }
@@ -183,14 +180,13 @@ const getVideoById = asyncHandler(async (req, res) => {
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     if (!decodedToken) {
       console.log("error while decoding token: ", decodedToken);
+      await User.findByIdAndUpdate(decodedToken?._id, {
+        $addToSet: {
+          watchHistory: videoId,
+        },
+      });
     }
-    await User.findByIdAndUpdate(decodedToken?._id, {
-      $addToSet: {
-        watchHistory: videoId,
-      },
-    });
   } catch (error) {
-    console.log(error);
   }
 
   const updatedVideo = await Video.findByIdAndUpdate(videoId, {
@@ -223,14 +219,43 @@ const getVideoById = asyncHandler(async (req, res) => {
         as: "owner",
         pipeline: [
           {
+            $lookup: {
+              from: "subscriptions",
+              localField: "_id",
+              foreignField: "channel",
+              as: "subscribers"
+            }
+          },
+          {
+            $addFields: {
+              subscribersCount: {
+                $size: "$subscribers"
+              },
+              isSubscribed: {
+                $cond: {
+                  if: {
+                    $in: [
+                      req.user?._id,
+                      "$subscribers.subscriber"
+                    ]
+                  },
+                  then: true,
+                  else: false
+                }
+              }
+            }
+          },
+          {
             $project: {
-              fullName: 1,
+              fullName:1,
               username: 1,
               avatar: 1,
-            },
-          },
-        ],
-      },
+              subscribersCount: 1,
+              isSubscribed: 1
+            }
+          }
+        ]
+      }
     },
     {
       $addFields: {
@@ -239,7 +264,13 @@ const getVideoById = asyncHandler(async (req, res) => {
         },
         owner: {
           $first: "$owner",
-        },
+        }, isLiked: {
+          $cond: {
+            if: { $in: [req.user?._id, "$likes.likedBy"] },
+            then: true,
+            else: false
+          }
+        }
       },
     },
     {
@@ -406,8 +437,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
       new ApiRes(
         200,
         {},
-        `Video successfully ${
-          updatedVideo.isPublished ? "Published" : "Unpublished"
+        `Video successfully ${updatedVideo.isPublished ? "Published" : "Unpublished"
         }`
       )
     );
