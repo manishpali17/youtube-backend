@@ -43,10 +43,10 @@ router.route("/change-password").post(verifyJWT, changePassword);
 router.route("/update-user-details").patch(verifyJWT, updateUserDetails);
 router
   .route("/update-avatar")
-  .patch(verifyJWT,limiter, upload.single("avatar"), updateAvatarImage);
+  .patch(verifyJWT, limiter, upload.single("avatar"), updateAvatarImage);
 router
   .route("/update-cover-image")
-  .patch(verifyJWT,limiter, upload.single("coverImage"), updateUserCoverImage);
+  .patch(verifyJWT, limiter, upload.single("coverImage"), updateUserCoverImage);
 router.route("/history").get(verifyJWT, getWatchHistory);
 router
   .route("/history/remove-video/:videoId")

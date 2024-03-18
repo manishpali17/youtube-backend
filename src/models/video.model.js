@@ -29,7 +29,7 @@ const videoSchema = new mongoose.Schema(
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true
+      required: true,
     },
     title: {
       type: String,
@@ -50,6 +50,33 @@ const videoSchema = new mongoose.Schema(
     isPublished: {
       type: Boolean,
     },
+    categories: {
+      type: String,
+      enum: [
+        "Autos & Vehicles",
+        "Comedy",
+        "Education",
+        "Entertainment",
+        "Film & Animation",
+        "Gaming",
+        "Howto & Style",
+        "Music",
+        "News & Politics",
+        "Nonprofits & Activism",
+        "People & Blogs",
+        "Pets & Animals",
+        "Science & Technology",
+        "Sports",
+        "Travel & Events",
+        "",
+      ],
+      default: "",
+    },
+    tags: [
+      {
+        type: String,
+      },
+    ],
   },
   { timestamps: true }
 );
@@ -89,6 +116,5 @@ videoSchema.post("findOneAndDelete", async (video, next) => {
   }
   next();
 });
-
 
 export const Video = mongoose.model("Video", videoSchema);

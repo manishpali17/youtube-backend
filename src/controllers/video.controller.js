@@ -47,7 +47,11 @@ const getAllVideos = asyncHandler(async (req, res) => {
               { isPublished: true },
               {
                 $or: [
-                  { title: query ? { $regex: query, $options: "i" } : { $exists: true } },
+                  {
+                    title: query
+                      ? { $regex: query, $options: "i" }
+                      : { $exists: true },
+                  },
                   {
                     description: query
                       ? { $regex: query, $options: "i" }
@@ -117,12 +121,46 @@ const getAllVideos = asyncHandler(async (req, res) => {
  * @returns {Promise<void>} - A Promise that resolves when the operation is complete.
  */
 const publishAVideo = asyncHandler(async (req, res) => {
-  const { title, description } = req.body;
+  const {
+    title,
+    description,
+    isPublished = true,
+    categories = "",
+    tags = "",
+  } = req.body;
 
   if (!title || !description)
     throw new ApiError(400, "All fields are required");
 
-  // Local path from multer
+  if (categories.length > 0) {
+    const isValidCategory = [
+      "Autos & Vehicles",
+      "Comedy",
+      "Education",
+      "Entertainment",
+      "Film & Animation",
+      "Gaming",
+      "Howto & Style",
+      "Music",
+      "News & Politics",
+      "Nonprofits & Activism",
+      "People & Blogs",
+      "Pets & Animals",
+      "Science & Technology",
+      "Sports",
+      "Travel & Events",
+    ].includes(categories);
+
+    if (!isValidCategory) {
+      throw new ApiError(400, "Invalid category provided");
+    }
+  }
+
+  let tagsArray = [];
+  if (tags.includes(",")) {
+    tagsArray = tags.split(",").map((tag) => tag.trim());
+  }
+
   const videoLocalPath = req.files?.videoFile[0]?.path;
   const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
 
@@ -137,6 +175,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
   if (!videoFile || !thumbnail) {
     throw new ApiError(500, "Error occurred while uploading files");
   }
+
   const video = await Video.create({
     title,
     description,
@@ -150,7 +189,9 @@ const publishAVideo = asyncHandler(async (req, res) => {
       fileName: thumbnail.public_id,
     },
     owner: req.user?._id,
-    isPublished: true,
+    isPublished: isPublished,
+    categories: categories,
+    tags: tagsArray,
   });
 
   if (!video) {
@@ -187,6 +228,7 @@ const getVideoById = asyncHandler(async (req, res) => {
       });
     }
   } catch (error) {
+    console.log(error);
   }
 
   const updatedVideo = await Video.findByIdAndUpdate(videoId, {
@@ -223,39 +265,36 @@ const getVideoById = asyncHandler(async (req, res) => {
               from: "subscriptions",
               localField: "_id",
               foreignField: "channel",
-              as: "subscribers"
-            }
+              as: "subscribers",
+            },
           },
           {
             $addFields: {
               subscribersCount: {
-                $size: "$subscribers"
+                $size: "$subscribers",
               },
               isSubscribed: {
                 $cond: {
                   if: {
-                    $in: [
-                      req.user?._id,
-                      "$subscribers.subscriber"
-                    ]
+                    $in: [req.user?._id, "$subscribers.subscriber"],
                   },
                   then: true,
-                  else: false
-                }
-              }
-            }
+                  else: false,
+                },
+              },
+            },
           },
           {
             $project: {
-              fullName:1,
+              fullName: 1,
               username: 1,
               avatar: 1,
               subscribersCount: 1,
-              isSubscribed: 1
-            }
-          }
-        ]
-      }
+              isSubscribed: 1,
+            },
+          },
+        ],
+      },
     },
     {
       $addFields: {
@@ -264,13 +303,14 @@ const getVideoById = asyncHandler(async (req, res) => {
         },
         owner: {
           $first: "$owner",
-        }, isLiked: {
+        },
+        isLiked: {
           $cond: {
             if: { $in: [req.user?._id, "$likes.likedBy"] },
             then: true,
-            else: false
-          }
-        }
+            else: false,
+          },
+        },
       },
     },
     {
@@ -297,7 +337,7 @@ const getVideoById = asyncHandler(async (req, res) => {
  */
 const updateVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
-  const { title, description } = req.body;
+  const { title, description, categories = "", tags = "" } = req.body;
   const thumbnailLocalPath = req.file?.path;
 
   if (!isValidObjectId(videoId)) {
@@ -305,6 +345,34 @@ const updateVideo = asyncHandler(async (req, res) => {
   }
   if (!title || !description) {
     throw new ApiError(400, "Title and description required");
+  }
+  if (categories.length > 0) {
+    const isValidCategory = [
+      "Autos & Vehicles",
+      "Comedy",
+      "Education",
+      "Entertainment",
+      "Film & Animation",
+      "Gaming",
+      "Howto & Style",
+      "Music",
+      "News & Politics",
+      "Nonprofits & Activism",
+      "People & Blogs",
+      "Pets & Animals",
+      "Science & Technology",
+      "Sports",
+      "Travel & Events",
+    ].includes(categories);
+
+    if (!isValidCategory) {
+      throw new ApiError(400, "Invalid category provided");
+    }
+  }
+
+  let tagsArray = [];
+  if (tags.includes(",")) {
+    tagsArray = tags.split(",").map((tag) => tag.trim());
   }
 
   if (thumbnailLocalPath && thumbnailLocalPath !== "undefined") {
@@ -323,6 +391,8 @@ const updateVideo = asyncHandler(async (req, res) => {
             fileName: thumbnail.public_id,
             url: thumbnail.url,
           },
+          tags,
+          categories,
         },
       }
     );
@@ -356,6 +426,8 @@ const updateVideo = asyncHandler(async (req, res) => {
         $set: {
           title,
           description,
+          tags,
+          categories,
         },
       },
       { new: true }
@@ -437,7 +509,8 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
       new ApiRes(
         200,
         {},
-        `Video successfully ${updatedVideo.isPublished ? "Published" : "Unpublished"
+        `Video successfully ${
+          updatedVideo.isPublished ? "Published" : "Unpublished"
         }`
       )
     );
