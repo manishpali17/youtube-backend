@@ -105,7 +105,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     allowDiskUse: true,
   });
 
-  if (result.totalDocs === 0) {
+  if (result.totalVideos === 0) {
     throw new ApiError(404, "Videos not found");
   }
 
@@ -213,19 +213,19 @@ const getVideoById = asyncHandler(async (req, res) => {
   if (!isValidObjectId(videoId)) {
     throw new ApiError(400, "Invalid VideoId");
   }
-
+let userId;
   try {
     const token =
       req.signedCookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer ", "");
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    if (!decodedToken) {
-      console.log("error while decoding token: ", decodedToken);
-      await User.findByIdAndUpdate(decodedToken?._id, {
+    if (decodedToken) {
+      const user = await User.findByIdAndUpdate(decodedToken?._id, {
         $addToSet: {
           watchHistory: videoId,
         },
       });
+      userId = user._id
     }
   } catch (error) {
     console.log(error);
@@ -276,7 +276,7 @@ const getVideoById = asyncHandler(async (req, res) => {
               isSubscribed: {
                 $cond: {
                   if: {
-                    $in: [req.user?._id, "$subscribers.subscriber"],
+                    $in: [userId, "$subscribers.subscriber"],
                   },
                   then: true,
                   else: false,
@@ -306,7 +306,7 @@ const getVideoById = asyncHandler(async (req, res) => {
         },
         isLiked: {
           $cond: {
-            if: { $in: [req.user?._id, "$likes.likedBy"] },
+            if: { $in: [userId, "$likes.likedBy"] },
             then: true,
             else: false,
           },

@@ -16,6 +16,16 @@ const commentSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    parentComment: {
+      type: Schema.Types.ObjectId,
+      ref: "Comment",
+    },
+    replies: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Comment",
+      },
+    ],
   },
   {
     timestamps: true,
@@ -26,8 +36,25 @@ commentSchema.plugin(mongooseAggregatePaginate);
 
 commentSchema.post("findOneAndDelete", async (comment, next) => {
   if (comment) {
+    // Delete associated likes
     await Like.deleteMany({ comment: comment._id });
-    next();
+
+    // Remove this comment from its parent's replies array
+    if (comment.parentComment) {
+      await mongoose
+        .model("Comment")
+        .updateOne(
+          { _id: comment.parentComment },
+          { $pull: { replies: comment._id } }
+        );
+    }
+
+    // Delete all replies to this comment
+    if (comment.replies.length > 0) {
+      await mongoose
+        .model("Comment")
+        .deleteMany({ _id: { $in: comment.replies } });
+    }
   }
   next();
 });
